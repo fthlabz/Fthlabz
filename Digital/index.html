@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dijital Katalog</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-void: #0c0c0c;
+      --bg-navy: #1a1a2e;
+
+      --txt-main: #f2f2f2;
+      --txt-body: #d9d9d9;
+      --txt-dim: rgba(242,242,242,.35);
+
+      --gold: #efc07b;
+      --gold-deep: #d4a35d;
+      --teal: #33BECC;
+
+      --glass: rgba(255,255,255,.03);
+      --edge-top: rgba(255,255,255,.14);
+      --edge-bot: rgba(0,0,0,.45);
+
+      --r-lg: 20px;
+      --r-md: 16px;
+
+      --shadow-soft: 0 10px 28px rgba(0,0,0,.45);
+      --glow-gold: 0 0 22px rgba(239,192,123,.35);
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      color: var(--txt-main);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 520px at 50% 0%, rgba(239,192,123,.10), transparent 60%),
+        linear-gradient(135deg, var(--bg-navy), var(--bg-void) 45%, var(--bg-void));
+      overflow-x:hidden;
+    }
+
+    .bg-glow{
+      position:fixed; inset:0;
+      background:
+        radial-gradient(700px 380px at 30% 10%, rgba(51,190,204,.10), transparent 60%),
+        radial-gradient(900px 520px at 70% 0%, rgba(239,192,123,.10), transparent 60%);
+      pointer-events:none;
+      z-index:0;
+    }
+
+    .container{
+      max-width: 520px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 22px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .header{ text-align:center; padding: 8px 10px 2px; }
+    .company-name{
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      font-size: 28px;
+      letter-spacing: .02em;
+      color: var(--gold);
+      margin-top: 6px;
+    }
+    .company-slogan{
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--txt-dim);
+      font-style: italic;
+    }
+    .catalog-tag{
+      margin-top: 10px;
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.35);
+    }
+
+    #loading{
+      margin-top: 52px;
+      text-align:center;
+      color: var(--txt-body);
+      letter-spacing: .14em;
+      font-size: 11px;
+    }
+    #loading i{ color: var(--gold); }
+
+    .panel{ display:none; animation: fadeIn .45s ease-out; }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(10px)} to{opacity:1; transform: translateY(0)} }
+
+    .glass{
+      background: var(--glass);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border-radius: var(--r-lg);
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: var(--shadow-soft);
+      position:relative;
+      overflow:hidden;
+    }
+    .glass::before{
+      content:"";
+      position:absolute; inset:0;
+      border-radius: inherit;
+      pointer-events:none;
+      box-shadow:
+        inset 1px 1px 0 var(--edge-top),
+        inset -1px -1px 0 var(--edge-bot);
+    }
+
+    .hero-card{
+      padding: 18px;
+      border-radius: var(--r-lg);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border: 1px solid rgba(255,255,255,.07);
+      box-shadow: var(--shadow-soft);
+    }
+    .hero-title{
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--txt-main);
+      font-size: 13px;
+    }
+    label{
+      display:block;
+      margin-top: 14px;
+      margin-bottom: 8px;
+      color: rgba(242,242,242,.45);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+      font-weight: 600;
+    }
+    input, textarea{
+      width:100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(255,255,255,.18);
+      color: var(--txt-main);
+      padding: 14px 6px;
+      outline:none;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    textarea{ resize: vertical; min-height: 110px; }
+    input:focus, textarea:focus{
+      border-bottom-color: rgba(51,190,204,.9);
+      box-shadow: 0 10px 22px rgba(51,190,204,.12);
+    }
+
+    .btn-gold{
+      width:100%;
+      border: none;
+      padding: 16px 18px;
+      border-radius: 999px;
+      margin-top: 22px;
+      cursor:pointer;
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      color: var(--bg-void);
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      box-shadow: var(--glow-gold);
+    }
+    .btn-gold:disabled{ opacity:.7; cursor:not-allowed; }
+
+    .btn-whatsapp{
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(37, 211, 102, 0.45);
+      background: linear-gradient(135deg, #25D366, #1DA851);
+      color: #0c0c0c;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow:
+        0 0 18px rgba(37, 211, 102, 0.35),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .btn-whatsapp:active{ transform: scale(0.99); }
+    .btn-whatsapp::before{
+      content: "";
+      font-family: "Font Awesome 6 Brands";
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .btn-ghost{
+      width:100%;
+      border-radius: 999px;
+      padding: 14px 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: rgba(242,242,242,.85);
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor:pointer;
+    }
+    .btn-ghost:active{ transform: scale(.99); }
+
+    .certificate{
+      padding: 16px;
+      border-radius: var(--r-lg);
+      background: linear-gradient(180deg, rgba(239,192,123,.10), rgba(255,255,255,.03));
+      border: 1px solid rgba(239,192,123,.28);
+      box-shadow: var(--glow-gold);
+      position:relative;
+      overflow:hidden;
+    }
+    .cert-top{ display:flex; align-items:center; justify-content:space-between; gap: 12px; }
+    .cert-badge{
+      display:inline-flex; align-items:center; gap: 8px;
+      font-size: 11px; letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.8);
+      font-weight: 800;
+    }
+    .cert-badge i{ color: var(--gold); }
+    .cert-meta{ font-size: 12px; color: rgba(242,242,242,.55); white-space: nowrap; }
+    .cert-line{
+      margin-top: 10px;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(239,192,123,.0), rgba(239,192,123,.45), rgba(239,192,123,.0));
+    }
+
+    .dock{ margin-top: 6px; }
+    .dock-inner{
+      display:flex; justify-content:space-between; gap: 10px;
+      padding: 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow-soft);
+    }
+    .dock-btn{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      height: 52px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      color: var(--txt-main);
+      cursor:pointer;
+    }
+    .dock-btn i{ font-size: 18px; opacity:.95; }
+    .dock-btn:active{ transform: scale(.99); }
+    .dock-btn.daily{
+      border-color: rgba(239,192,123,.35);
+      background: rgba(239,192,123,.10);
+      box-shadow: var(--glow-gold);
+    }
+    .dock-btn.daily i{ color: var(--gold); }
+    .dock-labels{
+      display:flex; justify-content:space-between; gap: 10px;
+      padding: 8px 12px 0;
+      color: var(--txt-dim);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .dock-labels span{ flex:1; text-align:center; }
+
+    .section-label{
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--txt-dim);
+    }
+
+    .flash{ padding: 16px; border-radius: var(--r-lg); }
+    .flash-head{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .flash-title{
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(242,242,242,.85);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .flash-title i{ color: var(--gold); }
+    .flash-chip{
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(51,190,204,.35);
+      background: rgba(51,190,204,.10);
+      color: rgba(242,242,242,.85);
+      font-size: 11px;
+      letter-spacing: .06em;
+      white-space: nowrap;
+    }
+
+    /* ✅ Anlık kampanya görseli kesmesin: resme göre boyutlansın */
+    .flash-media{
+      width:100%;
+      border-radius: var(--r-md);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      position:relative;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 12px;
+      aspect-ratio: auto;
+    }
+    .flash-media img{
+      width:100%;
+      height:auto;
+      display:block;
+      object-fit: contain;
+      background: rgba(0,0,0,.25);
+    }
+
+    .flash-media .placeholder{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      flex-direction:column;
+      gap: 10px;
+      color: rgba(242,242,242,.55);
+      font-size: 12px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .flash-media .placeholder i{ color: var(--gold); font-size: 22px; }
+
+    .price-row{ display:flex; gap: 12px; }
+    .price-box{
+      flex:1;
+      padding: 12px;
+      border-radius: var(--r-md);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+    }
+    .price-label{
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.45);
+      margin-bottom: 8px;
+      font-weight: 800;
+    }
+    .price-val{
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: .01em;
+      color: var(--txt-main);
+    }
+    .price-val.old{
+      text-decoration: line-through;
+      color: rgba(242,242,242,.45);
+      font-weight: 700;
+    }
+
+    .flash-actions{
+      display:flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .footer{
+      text-align:center;
+      margin: 8px 0 18px;
+      font-size: 10px;
+      letter-spacing: .18em;
+      color: rgba(242,242,242,.18);
+    }
+    .admin-edit{
+      position: fixed;
+      bottom: 22px;
+      right: 18px;
+      width: 44px; height: 44px;
+      border-radius: 999px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: var(--shadow-soft);
+      z-index: 10;
+      color: rgba(242,242,242,.7);
+      cursor:pointer;
+    }
+    .admin-edit i{ font-size: 14px; }
+    .admin-edit:active{ transform: scale(.98); }
+
+    /* Overlay (gallery) */
+    #gallery-overlay{
+      position:fixed; inset:0;
+      background:#000;
+      z-index:9999;
+      display:none;
+      flex-direction:column;
+    }
+    .gallery-header{
+      height: 64px;
+      padding: 0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background: rgba(12,12,12,.72);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      flex-shrink:0;
+    }
+    .close-gallery{
+      display:flex; align-items:center; gap: 8px;
+      color: rgba(242,242,242,.85);
+      font-size: 12px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      cursor:pointer;
+    }
+    #galTitle{
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .slider-container{
+      flex:1;
+      display:flex;
+      overflow-x:auto;
+      overflow-y:hidden;
+      scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      align-items:center;
+    }
+    .slider-container::-webkit-scrollbar{ display:none; }
+    .slide{
+      flex:0 0 100%;
+      height:100%;
+      scroll-snap-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+    }
+    .slide img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+      pointer-events:none;
+    }
+    .slide iframe{
+      width:100%;
+      height:100%;
+      border:none;
+      pointer-events:auto;
+    }
+    .video-wrapper{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .spinner{
+      color: var(--gold);
+      font-size: 22px;
+      position:absolute;
+      top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      text-align:center;
+    }
+    .error-msg{
+      color: rgba(255,220,220,.9);
+      font-size: 12px;
+      text-align:center;
+      margin-top: 100px;
+      padding: 18px;
+      background: rgba(166,68,93,.12);
+      border-radius: 14px;
+      width: 84%;
+      margin-left:auto;
+      margin-right:auto;
+      border: 1px solid rgba(166,68,93,.35);
+    }
+
+    /* === CARD MODAL (Contact Button) === */
+    #cardModal{
+      position:fixed; inset:0;
+      background: rgba(0,0,0,.92);
+      z-index: 10000;
+      display:none;
+      flex-direction:column;
+    }
+    .card-header{
+      height: 64px;
+      padding: 0 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      background: rgba(12,12,12,.72);
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      flex-shrink:0;
+    }
+    .card-title{
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .card-body{
+      flex:1;
+      overflow-y:auto;
+      padding: 18px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .card-box{
+      border-radius: var(--r-lg);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      padding: 16px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 14px;
+    }
+    .card-headline{
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(242,242,242,.88);
+      margin-bottom: 10px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .mini{
+      color: rgba(242,242,242,.60);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .step{
+      display:flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .step:first-of-type{ border-top:none; }
+    .step-ico{
+      width: 28px; height: 28px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius: 10px;
+      background: rgba(239,192,123,.10);
+      border: 1px solid rgba(239,192,123,.20);
+      flex-shrink:0;
+    }
+    .step-ico i{ color: var(--gold); font-size: 14px; }
+    .step-text{
+      color: rgba(242,242,242,.78);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .hl{
+      color: rgba(242,242,242,.92);
+      border-bottom: 1px dashed rgba(255,255,255,.18);
+      text-decoration:none;
+    }
+
+    @media (max-width: 380px){
+      .company-name{ font-size: 24px; }
+      .dock-btn{ height: 48px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="company-name" id="companyName">...</div>
+      <div class="company-slogan" id="companySlogan">...</div>
+      <div class="catalog-tag">DİJİTAL KATALOG</div>
+    </div>
+
+    <div id="loading">
+      <i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>
+      Veriler Çekiliyor...
+    </div>
+
+    <!-- ADMIN / SETUP -->
+    <div id="setup-panel" class="panel">
+      <div class="hero-card">
+        <div class="hero-title">Yönetici Kurulumu</div>
+        <p style="font-size:12px; color: rgba(242,242,242,.55); margin:10px 0 0;">
+          İzleyici şifresi yok. Düzenleme için yönetici şifresi gerekir. Şifreyi bir kere girince bu cihazda hatırlar.
+          <br><br>
+          Not: Daha sonra düzenlerken şifreyi değiştirmek istemezsen, şifre alanını boş bırakıp Kaydet diyebilirsin.
+        </p>
+      </div>
+
+      <label>1) ŞİRKET ADI</label>
+      <input type="text" id="inTitle" placeholder="Örn: X Mağazası">
+
+      <label>2) SLOGAN</label>
+      <input type="text" id="inSlogan" placeholder="Örn: Kaliteyi uygun fiyata sunarız.">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        3) İLETİŞİM BİLGİLERİ (ŞABLON)
+      </label>
+
+      <label>Telefon</label>
+      <input type="text" id="inPhone" placeholder="Örn: +90 5xx xxx xx xx">
+
+      <label>E-posta (Opsiyonel)</label>
+      <input type="text" id="inEmail" placeholder="Örn: info@site.com">
+
+      <label>WhatsApp Numarası (Opsiyonel — ülke kodu ile)</label>
+      <input type="text" id="inWhats" placeholder="Örn: 905xxxxxxxxx">
+
+      <label>Instagram (Opsiyonel)</label>
+      <input type="text" id="inInsta" placeholder="Örn: @hesap">
+
+      <label>Adres (Opsiyonel)</label>
+      <input type="text" id="inAddress" placeholder="Örn: Kadıköy, İstanbul">
+
+      <label>Konum Linki (Google Maps — Opsiyonel)</label>
+      <input type="text" id="inMaps" placeholder="Maps linki">
+
+      <label>Google Yorum Linki (Opsiyonel)</label>
+      <input type="text" id="inReview" placeholder="Google yorum linki">
+
+      <label>Çalışma Saatleri (Opsiyonel)</label>
+      <input type="text" id="inHours" placeholder="Örn: Hafta içi 09:00–19:00">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        4) MEDYA
+      </label>
+
+      <label>Ürünlerimiz (Resimler Klasör Linki)</label>
+      <input type="text" id="inPhotoLink" placeholder="Drive klasör linki">
+
+      <label>Videolu Reklamlar (Videolar Klasör Linki)</label>
+      <input type="text" id="inVideoLink" placeholder="Drive klasör linki">
+
+      <label>Ürün tanıtımı (Tek Drive Dosyası)</label>
+      <input type="text" id="inDaily" placeholder="Drive dosya linki">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        5) ANLIK KAMPANYA (YÖNETİCİDEN — KALICI)
+      </label>
+
+      <label>Kampanya Görseli (Tek Drive Görsel Linki)</label>
+      <input type="text" id="inFlashImg" placeholder="Drive görsel linki">
+
+      <label>Eski Fiyat</label>
+      <input type="text" id="inOldPrice" placeholder="Örn: 1.499₺">
+
+      <label>Yeni Fiyat</label>
+      <input type="text" id="inNewPrice" placeholder="Örn: 999₺">
+
+      <label>Kampanya Etiketi (Opsiyonel)</label>
+      <input type="text" id="inFlashLabel" placeholder="Örn: FLAŞ FIRSAT / HAFTANIN ÜRÜNÜ">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        6) YASAL / AÇIKLAMA METNİ
+      </label>
+      <textarea id="inNot" rows="4" placeholder="Örn: Tüm hakları saklıdır..."></textarea>
+
+      <label style="color: var(--gold); margin-top: 18px;">YÖNETİCİ ŞİFRESİ</label>
+      <input type="password" id="inPass" placeholder="Yönetici şifresi (ilk kurulumda zorunlu)">
+      <input type="password" id="inPassConfirm" placeholder="Şifre tekrar">
+
+      <button class="btn-gold" onclick="saveData()">KAYDET</button>
+    </div>
+
+    <!-- VIEW -->
+    <div id="view-panel" class="panel">
+      <div class="certificate">
+        <div class="cert-top">
+          <div class="cert-badge">
+            <i class="fas fa-crown"></i>
+            DİJİTAL KATALOG KAYDI
+          </div>
+          <div class="cert-meta">
+            ID: <span id="certId">...</span>
+          </div>
+        </div>
+        <div class="cert-line"></div>
+        <div style="margin-top:10px; font-size:12px; color: rgba(242,242,242,.55);">
+          “Bu katalog, işletmenin bilgilendirme ve tanıtım amaçlı özel içeriklerini, ayrıcalıklı müşteri deneyimi çerçevesinde sunmak üzere hazırlanmıştır.”
+        </div>
+      </div>
+
+      <div class="dock">
+        <div class="dock-inner">
+          <!-- İLETİŞİM: artık kart/rehbere kaydet + ana ekrana ekle -->
+          <div class="dock-btn" onclick="openCardModal()" title="Kart / Rehbere Kaydet">
+            <i class="fas fa-address-card"></i>
+          </div>
+
+          <div class="dock-btn" onclick="openGallery('photo')" id="btnProducts" title="Ürünlerimiz">
+            <i class="fas fa-box-open"></i>
+          </div>
+
+          <div class="dock-btn" onclick="openGallery('video')" id="btnAds" title="Videolu Reklamlar">
+            <i class="fas fa-bullhorn"></i>
+          </div>
+
+          <div class="dock-btn daily" onclick="openDaily()" id="btnDaily" title="Ürün tanıtımı">
+            <i class="fas fa-bolt"></i>
+          </div>
+        </div>
+
+        <div class="dock-labels">
+          <span>Kart</span>
+          <span>Ürünler</span>
+          <span>Reklam</span>
+          <span>Ürün tanıtımı</span>
+        </div>
+      </div>
+
+      <div class="section-label">Anlık Kampanya</div>
+
+      <div class="flash glass" id="flashBox">
+        <div class="flash-head">
+          <div class="flash-title" id="flashTitle"><i class="fas fa-bolt"></i> FLAŞ FIRSAT</div>
+          <div class="flash-chip" id="flashState">Yayında</div>
+        </div>
+
+        <div class="flash-media" id="flashMedia">
+          <div class="placeholder" id="flashPlaceholder">
+            <i class="fas fa-tag"></i>
+            Kampanya yok
+          </div>
+          <img id="flashImg" alt="" style="display:none;">
+        </div>
+
+        <div class="price-row">
+          <div class="price-box">
+            <div class="price-label">Eski Fiyat</div>
+            <div class="price-val old" id="oldPriceText">—</div>
+          </div>
+          <div class="price-box">
+            <div class="price-label">Yeni Fiyat</div>
+            <div class="price-val" id="newPriceText">—</div>
+          </div>
+        </div>
+
+        <div class="flash-actions">
+          <button class="btn-whatsapp" onclick="orderOnWhatsApp()">WhatsApp’tan Sipariş</button>
+        </div>
+      </div>
+
+      <div class="admin-edit" onclick="enableEdit()"><i class="fas fa-pen"></i></div>
+      <div class="footer">POWERED BY FTHLABZ</div>
+    </div>
+  </div>
+
+  <!-- GALLERY OVERLAY -->
+  <div id="gallery-overlay">
+    <div class="gallery-header">
+      <div class="close-gallery" onclick="closeGallery()"><i class="fas fa-chevron-left"></i> Geri</div>
+      <span id="galTitle">Albüm</span>
+    </div>
+    <div class="slider-container" id="slider-track"></div>
+  </div>
+
+  <!-- CARD MODAL -->
+  <div id="cardModal">
+    <div class="card-header">
+      <div class="close-gallery" onclick="closeCardModal()"><i class="fas fa-chevron-left"></i> Kapat</div>
+      <div class="card-title">KART / REHBER</div>
+    </div>
+    <div class="card-body">
+      <div class="card-box">
+        <div class="card-headline"><i class="fas fa-user-plus"></i> Rehbere Kaydet</div>
+        <div class="mini">
+          Tek tuşla işletme kartını oluşturur. Açılan ekranda “Kişilere Ekle / Yeni Kişi Oluştur” seçerek kaydedebilirsin.
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn-gold" style="margin-top:0;" onclick="saveToContacts()">Rehbere Kaydet</button>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-headline"><i class="fas fa-house"></i> Ana Ekrana Kısayol</div>
+        <div class="mini" id="a2hsText">Cihazına göre yönerge burada görünecek.</div>
+
+        <div style="margin-top:12px;">
+          <button class="btn-ghost" onclick="showA2HSHelp()">Ana Ekrana Ekle Yönergesi</button>
+        </div>
+
+        <div id="a2hsSteps" style="margin-top:12px; display:none;">
+          <!-- dynamic -->
+        </div>
+      </div>
+
+      <div class="card-box" id="cardQuickLinks" style="display:none;">
+        <div class="card-headline"><i class="fas fa-link"></i> Hızlı Erişim</div>
+        <div class="mini">
+          Bazı cihazlarda aşağıdaki linkler doğrudan işini hızlandırır.
+        </div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="hl" id="quickTel" href="#" style="display:none;">Telefonla Ara</a>
+          <a class="hl" id="quickMap" href="#" target="_blank" rel="noopener" style="display:none;">Konum</a>
+          <a class="hl" id="quickInsta" href="#" target="_blank" rel="noopener" style="display:none;">Instagram</a>
+          <a class="hl" id="quickReview" href="#" target="_blank" rel="noopener" style="display:none;">Yorumlar</a>
+          <a class="hl" id="quickWeb" href="#" target="_blank" rel="noopener" style="display:none;">Site/Katalog</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ API URL (same)
+    const API_URL = "https://script.google.com/macros/s/AKfycbyvtvYWLmkq8AqmCEhf_FP5fYLaliFpz_p-Jx4_miEM1vgCvHIM8qDS06A5kKP9F6W0ZA/exec";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentID = urlParams.get('id');
+
+    // Data model:
+    // title: company
+    // not: legal
+    // ses: daily single file link
+    // folder (packed):
+    // 0 pLink
+    // 1 vLink
+    // 2 adminHash
+    // 3 slogan
+    // 4 phone
+    // 5 whats
+    // 6 insta
+    // 7 address
+    // 8 maps
+    // 9 flashImg
+    // 10 flashOld
+    // 11 flashNew
+    // 12 flashLabel
+    // 13 email
+    // 14 review
+    // 15 hours
+    let pageData = {
+      company: "", slogan: "",
+      phone: "", email: "", whats: "", insta: "", address: "", maps: "", review: "", hours: "",
+      legal: "",
+      pLink: "", vLink: "",
+      daily: "",
+      adminHash: "",
+      flashImg: "", flashOld: "", flashNew: "", flashLabel: ""
+    };
+
+    function sha256hex(str){
+      return CryptoJS.SHA256(str).toString(CryptoJS.enc.Hex);
+    }
+    function storageKey(name){ return `${name}_${currentID}`; }
+    function encodeSafe(s){ return encodeURIComponent((s||"").trim()); }
+    function decodeSafe(s){ try { return decodeURIComponent(s); } catch(e){ return s; } }
+
+    function escapeHtml(str){
+      return (str||"").replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m]));
+    }
+
+    window.onload = function() {
+      if (!currentID) { document.getElementById('loading').innerHTML = "ID Yok"; return; }
+      document.getElementById('certId').innerText = currentID;
+
+      fetch(API_URL + "?action=read&id=" + currentID)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('loading').style.display = 'none';
+
+          if (data.status === "empty") {
+            document.getElementById('companyName').innerText = "Yeni Katalog";
+            document.getElementById('companySlogan').innerText = "Kurulum gerekli";
+            document.getElementById('setup-panel').style.display = 'block';
+            return;
+          }
+
+          // Legacy encrypted detection (old AES)
+          const looksEncrypted = (v) => typeof v === 'string' && v.startsWith("U2FsdGVkX1");
+          if (looksEncrypted(data.title) || looksEncrypted(data.not) || looksEncrypted(data.folder) || looksEncrypted(data.ses)) {
+            document.getElementById('companyName').innerText = "Güncelleme Gerekli";
+            document.getElementById('companySlogan').innerText = "Eski şifreli kayıt";
+            document.getElementById('view-panel').style.display = 'block';
+            document.getElementById('btnProducts').style.display='none';
+            document.getElementById('btnAds').style.display='none';
+            document.getElementById('btnDaily').style.display='none';
+            document.getElementById('flashBox').style.display='none';
+            return;
+          }
+
+          pageData.company = (data.title || "").trim();
+          pageData.legal   = (data.not || "").trim();
+          pageData.daily   = (data.ses || "").trim();
+
+          const folderStr = (data.folder || "").trim();
+          const parts = folderStr.split("|||");
+
+          pageData.pLink = (parts[0] || "").trim();
+          pageData.vLink = (parts[1] || "").trim();
+          pageData.adminHash = (parts[2] || "").trim();
+
+          pageData.slogan  = decodeSafe(parts[3] || "");
+          pageData.phone   = decodeSafe(parts[4] || "");
+          pageData.whats   = decodeSafe(parts[5] || "");
+          pageData.insta   = decodeSafe(parts[6] || "");
+          pageData.address = decodeSafe(parts[7] || "");
+          pageData.maps    = decodeSafe(parts[8] || "");
+
+          pageData.flashImg   = decodeSafe(parts[9] || "");
+          pageData.flashOld   = decodeSafe(parts[10] || "");
+          pageData.flashNew   = decodeSafe(parts[11] || "");
+          pageData.flashLabel = decodeSafe(parts[12] || "");
+
+          pageData.email  = decodeSafe(parts[13] || "");
+          pageData.review = decodeSafe(parts[14] || "");
+          pageData.hours  = decodeSafe(parts[15] || "");
+
+          document.getElementById('companyName').innerText = pageData.company || "Dijital Katalog";
+          document.getElementById('companySlogan').innerText = pageData.slogan || "";
+
+          if (!pageData.pLink) document.getElementById('btnProducts').style.display='none';
+          if (!pageData.vLink) document.getElementById('btnAds').style.display='none';
+          if (!pageData.daily) document.getElementById('btnDaily').style.display='none';
+
+          renderFlash();
+          document.getElementById('view-panel').style.display = 'block';
+        })
+        .catch(() => alert("Bağlantı Hatası: URL'yi kontrol et."));
+    };
+
+    // ===== Flash render =====
+    function getDriveId(link){
+      const m = (link||"").match(/[-\w]{25,}/);
+      return m ? m[0] : "";
+    }
+
+    function renderFlash(){
+      const img = document.getElementById('flashImg');
+      const ph  = document.getElementById('flashPlaceholder');
+      const oldT = document.getElementById('oldPriceText');
+      const newT = document.getElementById('newPriceText');
+      const title = document.getElementById('flashTitle');
+
+      const label = (pageData.flashLabel || "FLAŞ FIRSAT").trim();
+      title.innerHTML = `<i class="fas fa-bolt"></i> ${escapeHtml(label).toUpperCase()}`;
+
+      oldT.innerText = pageData.flashOld ? pageData.flashOld : "—";
+      newT.innerText = pageData.flashNew ? pageData.flashNew : "—";
+
+      if(pageData.flashImg){
+        const id = getDriveId(pageData.flashImg);
+        const src = id ? (`https://lh3.googleusercontent.com/d/${id}=s2000`) : pageData.flashImg;
+        img.src = src;
+        img.style.display = 'block';
+        ph.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        ph.style.display = 'flex';
+      }
+    }
+
+    // ===== Daily single file preview =====
+    function openDaily(){
+      if(!pageData.daily) return;
+      const overlay = document.getElementById('gallery-overlay');
+      const slider = document.getElementById('slider-track');
+      document.getElementById('galTitle').innerText = "Ürün tanıtımı";
+      slider.innerHTML = "";
+      overlay.style.display = 'flex';
+
+      const fileId = getDriveId(pageData.daily);
+      if(fileId){
+        const playerUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+        slider.innerHTML = `<div class="slide"><div class="video-wrapper"><iframe src="${playerUrl}" allow="autoplay; fullscreen" allowfullscreen></iframe></div></div>`;
+      } else {
+        slider.innerHTML = '<div class="error-msg">Link Hatalı</div>';
+      }
+    }
+
+    // ===== Gallery (same backend) =====
+    function openGallery(type) {
+      let link = "";
+      let title = "";
+      if(type === 'video') { link = pageData.vLink; title = "Reklamlar"; }
+      if(type === 'photo') { link = pageData.pLink; title = "Ürünlerimiz"; }
+      if(!link) return;
+
+      const overlay = document.getElementById('gallery-overlay');
+      const slider = document.getElementById('slider-track');
+      document.getElementById('galTitle').innerText = title;
+      slider.innerHTML = '<div class="spinner"><i class="fas fa-circle-notch fa-spin"></i><br><span style="font-size:10px; letter-spacing:.12em; text-transform:uppercase;">Yükleniyor...</span></div>';
+      overlay.style.display = 'flex';
+
+      fetch(API_URL + "?action=getFiles&url=" + encodeURIComponent(link))
+        .then(res => res.json())
+        .then(data => {
+          slider.innerHTML = "";
+          if(data.status === "error") {
+            slider.innerHTML = `<div class="error-msg">⚠️ BAĞLANTI HATASI<br>${data.msg}</div>`;
+            return;
+          }
+          if(!data.files || data.files.length === 0) {
+            slider.innerHTML = '<div class="error-msg">Bu klasör boş görünüyor.</div>';
+            return;
+          }
+
+          data.files.forEach(file => {
+            const slide = document.createElement('div');
+            slide.className = 'slide';
+            if(file.type === 'image') {
+              const proxyUrl = "https://lh3.googleusercontent.com/d/" + file.id + "=s2000";
+              slide.innerHTML = `<img src="${proxyUrl}" loading="lazy">`;
+            } else if (file.type === 'video') {
+              const videoUrl = `https://drive.google.com/file/d/${file.id}/preview`;
+              slide.innerHTML = `<div class="video-wrapper"><iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
+            }
+            slider.appendChild(slide);
+          });
+        });
+    }
+
+    function closeGallery() {
+      document.getElementById('gallery-overlay').style.display = 'none';
+      document.getElementById('slider-track').innerHTML = "";
+    }
+
+    // ===== WhatsApp Order =====
+    function normalizeHandle(h){ return (h||"").trim().replace(/^@/,'').replace(/\s+/g,''); }
+    function normalizeWhats(w){ return (w||"").replace(/[^\d]/g,'').replace(/^0/,'90'); }
+    function normalizeTel(t){ return (t||"").replace(/\s+/g,''); }
+
+    function orderOnWhatsApp(){
+      const num = normalizeWhats(pageData.whats || pageData.phone);
+      if(!num){
+        alert("WhatsApp/Telefon numarası eklenmemiş. Yönetici panelinden ekleyin.");
+        return;
+      }
+
+      const msgLines = [];
+      msgLines.push(`Merhaba, ${pageData.company || "işletme"} için sipariş/teklif istiyorum.`);
+      if(pageData.flashNew || pageData.flashOld){
+        msgLines.push(`Anlık Kampanya: ${pageData.flashOld ? ("Eski: " + pageData.flashOld) : ""}${(pageData.flashOld && pageData.flashNew) ? " | " : ""}${pageData.flashNew ? ("Yeni: " + pageData.flashNew) : ""}`);
+      }
+      msgLines.push(`Katalog ID: ${currentID}`);
+
+      const msg = encodeURIComponent(msgLines.join("\n"));
+      const url = `https://wa.me/${num}?text=${msg}`;
+      window.open(url, "_blank");
+    }
+
+    // ===== Admin auth remember per device =====
+    function isAdminRemembered(){
+      try{ return localStorage.getItem(storageKey("admin_ok")) === "1"; }
+      catch(e){ return false; }
+    }
+    function rememberAdmin(){
+      try{ localStorage.setItem(storageKey("admin_ok"), "1"); } catch(e){}
+    }
+
+    function enableEdit() {
+      if(isAdminRemembered()){
+        openSetupPrefilled();
+        return;
+      }
+
+      if(!pageData.adminHash){
+        const ok = confirm("Yönetici şifresi kaydı bulunamadı. Düzenlemeye geçilsin mi?");
+        if(!ok) return;
+        openSetupPrefilled();
+        return;
+      }
+
+      const adminPass = prompt("Yönetici şifresi:");
+      if(!adminPass) return;
+
+      const h = sha256hex(adminPass);
+      if(h !== pageData.adminHash){
+        alert("Şifre yanlış!");
+        return;
+      }
+
+      rememberAdmin();
+      openSetupPrefilled();
+    }
+
+    function openSetupPrefilled(){
+      document.getElementById('view-panel').style.display='none';
+      document.getElementById('setup-panel').style.display='block';
+
+      document.getElementById('inTitle').value = pageData.company || "";
+      document.getElementById('inSlogan').value = pageData.slogan || "";
+
+      document.getElementById('inPhone').value = pageData.phone || "";
+      document.getElementById('inEmail').value = pageData.email || "";
+      document.getElementById('inWhats').value = pageData.whats || "";
+      document.getElementById('inInsta').value = pageData.insta || "";
+      document.getElementById('inAddress').value = pageData.address || "";
+      document.getElementById('inMaps').value = pageData.maps || "";
+      document.getElementById('inReview').value = pageData.review || "";
+      document.getElementById('inHours').value = pageData.hours || "";
+
+      document.getElementById('inPhotoLink').value = pageData.pLink || "";
+      document.getElementById('inVideoLink').value = pageData.vLink || "";
+      document.getElementById('inDaily').value = pageData.daily || "";
+
+      document.getElementById('inFlashImg').value = pageData.flashImg || "";
+      document.getElementById('inOldPrice').value = pageData.flashOld || "";
+      document.getElementById('inNewPrice').value = pageData.flashNew || "";
+      document.getElementById('inFlashLabel').value = pageData.flashLabel || "";
+
+      document.getElementById('inNot').value = pageData.legal || "";
+
+      // Şifreyi otomatik doldurma yok:
+      document.getElementById('inPass').value = "";
+      document.getElementById('inPassConfirm').value = "";
+    }
+
+    function saveData() {
+      const company = (document.getElementById('inTitle').value || "").trim();
+      if(!company) return alert("Şirket adı boş olamaz.");
+
+      // İlk kurulum mu? (adminHash yoksa ilk kurulum say)
+      const firstSetup = !pageData.adminHash;
+
+      const pass = (document.getElementById('inPass').value || "");
+      const pass2 = (document.getElementById('inPassConfirm').value || "");
+
+      // ✅ İlk kurulumda şifre zorunlu
+      if(firstSetup){
+        if(!pass) return alert("İlk kurulumda yönetici şifresi boş olamaz.");
+        if(pass !== pass2) return alert("Şifreler uyuşmuyor.");
+      } else {
+        // ✅ Sonraki düzenlemelerde:
+        // - Şifre girilmediyse: adminHash aynen kalsın
+        // - Şifre girildiyse: değiştir (doğrula)
+        if(pass){
+          if(pass !== pass2) return alert("Şifreler uyuşmuyor.");
+        }
+      }
+
+      const btn = document.querySelector('#setup-panel .btn-gold');
+      btn.innerText = "KAYDEDİLİYOR...";
+      btn.disabled = true;
+
+      const slogan  = (document.getElementById('inSlogan').value || "").trim();
+
+      const phone   = (document.getElementById('inPhone').value || "").trim();
+      const email   = (document.getElementById('inEmail').value || "").trim();
+      const whats   = (document.getElementById('inWhats').value || "").trim();
+      const insta   = (document.getElementById('inInsta').value || "").trim();
+      const address = (document.getElementById('inAddress').value || "").trim();
+      const maps    = (document.getElementById('inMaps').value || "").trim();
+      const review  = (document.getElementById('inReview').value || "").trim();
+      const hours   = (document.getElementById('inHours').value || "").trim();
+
+      const pLink   = (document.getElementById('inPhotoLink').value || "").trim();
+      const vLink   = (document.getElementById('inVideoLink').value || "").trim();
+      const daily   = (document.getElementById('inDaily').value || "").trim();
+
+      const flashImg   = (document.getElementById('inFlashImg').value || "").trim();
+      const flashOld   = (document.getElementById('inOldPrice').value || "").trim();
+      const flashNew   = (document.getElementById('inNewPrice').value || "").trim();
+      const flashLabel = (document.getElementById('inFlashLabel').value || "").trim();
+
+      const legal   = (document.getElementById('inNot').value || "").trim();
+
+      // admin hash hesap
+      let adminHash = pageData.adminHash || "";
+      if(firstSetup || pass){
+        adminHash = sha256hex(pass);
+      }
+
+      const folder = [
+        pLink, vLink, adminHash,
+        encodeSafe(slogan),
+        encodeSafe(phone),
+        encodeSafe(whats),
+        encodeSafe(insta),
+        encodeSafe(address),
+        encodeSafe(maps),
+        encodeSafe(flashImg),
+        encodeSafe(flashOld),
+        encodeSafe(flashNew),
+        encodeSafe(flashLabel),
+        encodeSafe(email),
+        encodeSafe(review),
+        encodeSafe(hours)
+      ].join("|||");
+
+      fetch(API_URL + `?action=save&id=${encodeURIComponent(currentID)}&title=${encodeURIComponent(company)}&not=${encodeURIComponent(legal)}&folder=${encodeURIComponent(folder)}&ses=${encodeURIComponent(daily)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "success") {
+            rememberAdmin();
+            location.reload();
+          } else {
+            alert("Hata!");
+            btn.disabled = false;
+            btn.innerText = "KAYDET";
+          }
+        })
+        .catch(() => {
+          alert("Kaydetme hatası!");
+          btn.disabled = false;
+          btn.innerText = "KAYDET";
+        });
+    }
+
+    // =========================
+    // CARD / VCARD / A2HS FLOW
+    // =========================
+    function openCardModal(){
+      prepareCardModal();
+      document.getElementById('cardModal').style.display = 'flex';
+    }
+    function closeCardModal(){
+      document.getElementById('cardModal').style.display = 'none';
+      document.getElementById('a2hsSteps').style.display = 'none';
+    }
+
+    function isIOS(){
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+    function isAndroid(){
+      return /Android/.test(navigator.userAgent);
+    }
+    function isSafari(){
+      const ua = navigator.userAgent;
+      const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+      return isSafari && isIOS();
+    }
+
+    function prepareCardModal(){
+      const a2hsText = document.getElementById('a2hsText');
+      if(isIOS()){
+        a2hsText.innerHTML = "iPhone/iPad: Safari’de <b>Paylaş</b> → <b>Ana Ekrana Ekle</b> ile kısayol ekleyebilirsin.";
+      } else if(isAndroid()){
+        a2hsText.innerHTML = "Android: Chrome’da <b>⋮</b> menüsü → <b>Ana ekrana ekle</b> ile kısayol ekleyebilirsin.";
+      } else {
+        a2hsText.innerHTML = "Tarayıcı menüsünden “Ana ekrana ekle / Kısayol oluştur” seçeneklerini kullanabilirsin.";
+      }
+
+      // Quick links
+      const box = document.getElementById('cardQuickLinks');
+      const tel = document.getElementById('quickTel');
+      const map = document.getElementById('quickMap');
+      const ins = document.getElementById('quickInsta');
+      const rev = document.getElementById('quickReview');
+      const web = document.getElementById('quickWeb');
+
+      let any = false;
+
+      if(pageData.phone){
+        tel.href = `tel:${normalizeTel(pageData.phone)}`;
+        tel.style.display = 'inline-block';
+        any = true;
+      } else tel.style.display='none';
+
+      if(pageData.maps){
+        map.href = pageData.maps;
+        map.style.display = 'inline-block';
+        any = true;
+      } else map.style.display='none';
+
+      if(pageData.insta){
+        const handle = normalizeHandle(pageData.insta);
+        ins.href = `https://instagram.com/${handle}`;
+        ins.style.display = 'inline-block';
+        any = true;
+      } else ins.style.display='none';
+
+      if(pageData.review){
+        rev.href = pageData.review;
+        rev.style.display = 'inline-block';
+        any = true;
+      } else rev.style.display='none';
+
+      web.href = window.location.href;
+      web.style.display = 'inline-block';
+      any = true;
+
+      box.style.display = any ? 'block' : 'none';
+    }
+
+    function showA2HSHelp(){
+      const steps = document.getElementById('a2hsSteps');
+      steps.style.display = 'block';
+
+      if(isIOS()){
+        steps.innerHTML = `
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-share-square"></i></div>
+            <div class="step-text">Safari’de alttaki <b>Paylaş</b> ikonuna dokun.</div>
+          </div>
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-plus"></i></div>
+            <div class="step-text"><b>Ana Ekrana Ekle</b> seçeneğini seç.</div>
+          </div>
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-check"></i></div>
+            <div class="step-text">Sağ üstten <b>Ekle</b> diyerek bitir.</div>
+          </div>
+          <div class="mini" style="margin-top:10px;">
+            Not: iOS’ta bu işlem sadece kullanıcı onayıyla yapılabilir; web sayfası otomatik ekleyemez.
+          </div>
+        `;
+      } else if(isAndroid()){
+        steps.innerHTML = `
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-ellipsis-vertical"></i></div>
+            <div class="step-text">Chrome’da sağ üst <b>⋮</b> menüsüne dokun.</div>
+          </div>
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-house"></i></div>
+            <div class="step-text"><b>Ana ekrana ekle</b> / <b>Uygulama yükle</b> seçeneğini seç.</div>
+          </div>
+          <div class="step">
+            <div class="step-ico"><i class="fas fa-check"></i></div>
+            <div class="step-text"><b>Ekle</b> diyerek bitir.</div>
+          </div>
+        `;
+      } else {
+        steps.innerHTML = `
+          <div class="mini">
+            Tarayıcı menüsünden “Ana ekrana ekle / Kısayol oluştur / Install app” seçeneklerini kullanabilirsin.
+          </div>
+        `;
+      }
+    }
+
+    // ===== vCard (VCF) generator =====
+    function sanitizeVCardValue(s){
+      // vCard special chars: \n, ; , \
+      return (s||"").replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
+    }
+    function buildVCard(){
+      const lines = [];
+      const company = pageData.company || "İşletme";
+      const slogan  = pageData.slogan || "";
+      const phone   = pageData.phone || "";
+      const email   = pageData.email || "";
+      const address = pageData.address || "";
+      const maps    = pageData.maps || "";
+      const insta   = pageData.insta || "";
+      const whats   = pageData.whats || "";
+      const review  = pageData.review || "";
+      const hours   = pageData.hours || "";
+
+      // vCard 3.0 is widely compatible
+      lines.push("BEGIN:VCARD");
+      lines.push("VERSION:3.0");
+      // FN / ORG
+      lines.push(`FN:${sanitizeVCardValue(company)}`);
+      lines.push(`ORG:${sanitizeVCardValue(company)}`);
+
+      // TEL
+      if(phone) lines.push(`TEL;TYPE=CELL,VOICE:${sanitizeVCardValue(phone)}`);
+
+      // EMAIL
+      if(email) lines.push(`EMAIL;TYPE=INTERNET:${sanitizeVCardValue(email)}`);
+
+      // ADR (simple text in label)
+      if(address) lines.push(`ADR;TYPE=WORK:;;${sanitizeVCardValue(address)};;;;`);
+
+      // URL: katalog linki
+      lines.push(`URL:${sanitizeVCardValue(window.location.href)}`);
+
+      // Extra links in NOTE (broad compatibility)
+      const noteParts = [];
+      if(slogan) noteParts.push(slogan);
+      if(hours) noteParts.push(`Çalışma Saatleri: ${hours}`);
+      if(maps) noteParts.push(`Konum: ${maps}`);
+      if(insta) noteParts.push(`Instagram: https://instagram.com/${normalizeHandle(insta)}`);
+      if(review) noteParts.push(`Yorumlar: ${review}`);
+
+      // WhatsApp (optional)
+      const w = normalizeWhats(whats || phone);
+      if(w) noteParts.push(`WhatsApp: https://wa.me/${w}`);
+
+      // ID
+      noteParts.push(`Katalog ID: ${currentID}`);
+
+      if(noteParts.length){
+        lines.push(`NOTE:${sanitizeVCardValue(noteParts.join("\n"))}`);
+      }
+
+      lines.push("END:VCARD");
+      return lines.join("\r\n");
+    }
+
+    function saveToContacts(){
+      // Web güvenliği gereği “rehbere otomatik kaydet” yok.
+      // En hızlı yöntem: vCard (VCF) oluşturup açtırmak.
+      const vcf = buildVCard();
+      const filename = `${(pageData.company || "isletme").replace(/[^\w\d\-]+/g,'_')}_${currentID}.vcf`;
+
+      try{
+        // Prefer Blob URL
+        const blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+
+        // iOS Safari: location.href ile açtırmak genelde “Kişilere Ekle” ekranını getirir
+        // Bazı cihazlarda download gibi görünür ama Kişiler importu çıkar.
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+
+        // iOS'ta download attribute bazen yok sayılır, yine de açılır.
+        a.click();
+
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+        }, 1500);
+      } catch(e){
+        // Fallback: data uri
+        const dataUri = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcf);
+        window.location.href = dataUri;
+      }
+    }
+  </script>
+</body>
+</html>
