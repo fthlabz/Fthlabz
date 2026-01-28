@@ -322,24 +322,43 @@
       white-space: nowrap;
     }
 
-    /* ✅ Anlık kampanya görseli kesmesin: resme göre boyutlansın */
     .flash-media{
       width:100%;
       border-radius: var(--r-md);
+      padding: 15px;
       overflow:hidden;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(239,192,123,.25);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.28));
       position:relative;
-      box-shadow: var(--shadow-soft);
+      box-shadow:
+        0 16px 36px rgba(0,0,0,.45),
+        0 0 18px rgba(239,192,123,.12),
+        inset 0 0 0 1px rgba(239,192,123,.12);
       margin-bottom: 12px;
       aspect-ratio: auto;
+    }
+    .flash-media::before{
+      content:"";
+      position:absolute;
+      inset: 8px;
+      border-radius: calc(var(--r-md) - 6px);
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 40%),
+        radial-gradient(120% 80% at 50% 100%, rgba(0,0,0,.45), transparent 60%);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+      z-index:1;
     }
     .flash-media img{
       width:100%;
       height:auto;
       display:block;
       object-fit: contain;
+      border-radius: 13px;
       background: rgba(0,0,0,.25);
+      filter: contrast(1.05) saturate(1.06);
+      position:relative;
+      z-index:2;
     }
 
     .flash-media .placeholder{
@@ -351,6 +370,7 @@
       font-size: 12px;
       letter-spacing: .08em;
       text-transform: uppercase;
+      z-index:2;
     }
     .flash-media .placeholder i{ color: var(--gold); font-size: 22px; }
 
@@ -415,7 +435,6 @@
     .admin-edit i{ font-size: 14px; }
     .admin-edit:active{ transform: scale(.98); }
 
-    /* Overlay (gallery) */
     #gallery-overlay{
       position:fixed; inset:0;
       background:#000;
@@ -472,7 +491,7 @@
     }
     .slide img{
       max-width:100%;
-      max-height:100%;
+      max-height: calc(100vh - 130px);
       object-fit:contain;
       pointer-events:none;
     }
@@ -488,6 +507,55 @@
       display:flex;
       align-items:center;
       justify-content:center;
+    }
+    .gallery-frame{
+      width:100%;
+      padding: 18px 18px 24px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 12px;
+      position:relative;
+    }
+    .gallery-title{
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(242,242,242,.6);
+    }
+    .gallery-media{
+      width:100%;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(239,192,123,.28);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.38));
+      box-shadow:
+        0 18px 45px rgba(0,0,0,.55),
+        0 0 18px rgba(239,192,123,.12),
+        inset 0 0 0 1px rgba(255,255,255,.05);
+      position:relative;
+      overflow:hidden;
+    }
+    .gallery-media::before{
+      content:"";
+      position:absolute;
+      inset: 8px;
+      border-radius: 14px;
+      pointer-events:none;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0) 45%),
+        radial-gradient(120% 80% at 50% 100%, rgba(0,0,0,.5), transparent 60%);
+      z-index:1;
+    }
+    .gallery-media img{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius: 14px;
+      background: rgba(0,0,0,.25);
+      filter: contrast(1.05) saturate(1.06);
+      position:relative;
+      z-index:2;
     }
     .spinner{
       color: var(--gold);
@@ -511,7 +579,6 @@
       border: 1px solid rgba(166,68,93,.35);
     }
 
-    /* === CARD MODAL (Contact Button) === */
     #cardModal{
       position:fixed; inset:0;
       background: rgba(0,0,0,.92);
@@ -602,6 +669,592 @@
       .dock-btn{ height: 48px; }
     }
   </style>
+  <style id="design-override">
+    :root{
+      --bg-void: #eef3f9;
+      --bg-navy: #f6f9fe;
+      --txt-main: #0f172a;
+      --txt-body: #1f2937;
+      --txt-dim: #64748b;
+      --gold: #6b7280;
+      --gold-deep: #94a3b8;
+      --glass: rgba(255,255,255,.7);
+      --edge-top: rgba(255,255,255,.95);
+      --edge-bot: rgba(148,163,184,.4);
+      --shadow-soft: 0 16px 30px rgba(15,23,42,.12);
+      --glow-gold: 0 8px 18px rgba(59,130,246,.25);
+    }
+
+    body{
+      color: var(--txt-main);
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(59,130,246,.18), transparent 55%),
+        radial-gradient(900px 500px at 90% 0%, rgba(148,163,184,.25), transparent 60%),
+        linear-gradient(180deg, #f7faff, #edf2f9 40%, #eef3f9 100%);
+    }
+
+    .bg-glow{ display:none; }
+
+    .container{
+      gap: 18px;
+      padding: 18px 18px 28px;
+    }
+
+    .header{
+      text-align:center;
+      padding: 18px 16px 14px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(148,163,184,.28);
+      box-shadow: 0 18px 30px rgba(15,23,42,.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .header-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 12px;
+    }
+
+    .company-logo{
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      width: 0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      border: none;
+    }
+
+    .header-title{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .company-name{
+      margin: 0;
+      font-size: 26px;
+      color: #0b1220;
+      text-shadow: 0 1px 0 rgba(255,255,255,.4), 0 3px 8px rgba(15,23,42,.15);
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .company-name::after{
+      content: "";
+      display:block;
+      width: 70px;
+      height: 2px;
+      margin: 8px auto 0;
+      background: rgba(15,23,42,.25);
+      border-radius: 999px;
+    }
+
+    .company-slogan{
+      margin: 8px auto 0;
+      font-size: 13px;
+      color: #111827;
+      font-style: normal;
+      line-height: 1.6;
+      max-width: 88%;
+    }
+
+    .header-actions{
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .header-btn{
+      border: none;
+      border-radius: 14px;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 10px 12px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      box-shadow: 0 10px 18px rgba(15,23,42,.12);
+      border: 1px solid rgba(148,163,184,.4);
+      position:relative;
+      cursor:pointer;
+    }
+
+    .header-btn::after{
+      content: "VIP";
+      position:absolute;
+      top: -8px;
+      right: -8px;
+      font-size: 9px;
+      font-weight: 700;
+      background: #fbbf24;
+      color: #111827;
+      border-radius: 999px;
+      padding: 4px 6px;
+      box-shadow: 0 6px 12px rgba(15,23,42,.2);
+    }
+
+    .header-btn.whatsapp{
+      background: linear-gradient(135deg, #32d481, #22c55e);
+      color: #0b1f14;
+    }
+
+    .header-btn.phone{
+      width: 42px;
+      height: 42px;
+      padding: 0;
+      justify-content:center;
+    }
+
+    .catalog-tag{
+      margin-top: 8px;
+      font-size: 11px;
+      letter-spacing: .2em;
+      color: #475569;
+      text-align:center;
+      font-weight: 600;
+    }
+
+    .dock{
+      margin-top: 2px;
+    }
+
+    .dock-inner{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .dock-btn{
+      height: 86px;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.35);
+      box-shadow: 0 12px 22px rgba(15,23,42,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap: 8px;
+      color: #0f172a;
+    }
+
+    .dock-btn i{
+      font-size: 26px;
+      opacity: 1;
+    }
+
+    .dock-btn.daily{
+      border-color: rgba(59,130,246,.35);
+      background: #ffffff;
+      box-shadow: 0 12px 22px rgba(59,130,246,.18);
+    }
+
+    .dock-primary{
+      transform: scale(1.15);
+      border: 2px solid rgba(59,130,246,.5);
+      box-shadow: 0 16px 28px rgba(59,130,246,.22);
+    }
+
+    .dock-labels{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 8px 0 0;
+      font-size: 12px;
+      letter-spacing: .01em;
+      text-transform: none;
+      color: #1f2937;
+      font-weight: 600;
+    }
+
+    .dock-labels span{
+      text-align:center;
+    }
+
+    .section-label{
+      font-size: 24px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #0f172a;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .flash.glass{
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.3);
+      box-shadow: 0 18px 30px rgba(15,23,42,.12);
+    }
+
+    .flash-head{
+      margin-bottom: 14px;
+    }
+
+    .flash-title{
+      font-size: 12px;
+      color: #1f2937;
+    }
+
+    .flash-title i{
+      color: #3b82f6;
+    }
+
+    .flash-chip{
+      display: none;
+    }
+
+    .flash-media{
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,.3);
+      background: #f8fafc;
+      box-shadow: 0 10px 18px rgba(15,23,42,.12);
+      padding: 10px;
+    }
+
+    .flash-media::before{
+      display:none;
+    }
+
+    .flash-media img{
+      border-radius: 14px;
+      background: #f1f5f9;
+      filter: none;
+    }
+
+    .flash-media .placeholder{
+      color: #94a3b8;
+      text-transform: none;
+    }
+
+    .product-text{
+      display: none;
+    }
+
+    .product-title{
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .product-desc{
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .price-row{
+      margin-top: 10px;
+      gap: 12px;
+    }
+
+    .price-box{
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,.25);
+    }
+
+    .price-label{
+      color: #94a3b8;
+    }
+
+    .price-val{
+      color: #0b1220;
+      font-size: 22px;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .price-val.old{
+      color: #dc2626;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .btn-whatsapp{
+      background: linear-gradient(135deg, #25D366, #1DA851);
+      border: none;
+      color: #0b1f14;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 16px;
+      box-shadow: 0 14px 22px rgba(37, 211, 102, 0.28);
+    }
+
+    .btn-whatsapp::before{
+      font-family: "Font Awesome 6 Brands";
+    }
+
+    .secondary-actions{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .secondary-btn{
+      border: 1px solid rgba(148,163,184,.3);
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      box-shadow: 0 12px 20px rgba(15,23,42,.12);
+      cursor:pointer;
+      text-align:left;
+    }
+
+    .secondary-icon{
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: #1d4ed8;
+      font-size: 18px;
+      flex-shrink:0;
+    }
+
+    .secondary-text strong{
+      display:block;
+      font-size: 13px;
+      color: #111827;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .secondary-text small{
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .secondary-btn.review-secondary{
+      justify-content: center;
+      text-align: center;
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,.4);
+      box-shadow: 0 12px 20px rgba(15,23,42,.12);
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .secondary-btn.review-secondary .secondary-icon{
+      background: rgba(250, 204, 21, 0.18);
+      color: #b45309;
+    }
+
+    .secondary-btn.review-secondary .secondary-icon i{
+      display: none;
+    }
+
+    .secondary-btn.review-secondary .secondary-icon::before{
+      content: "\f005";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+    }
+
+    .secondary-btn.review-secondary .secondary-text strong{
+      font-size: 14px;
+    }
+
+    #setup-panel{
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 16px;
+      border: 1px solid rgba(148,163,184,.25);
+      box-shadow: 0 18px 30px rgba(15,23,42,.12);
+    }
+
+    #setup-panel .hero-card{
+      background: #f8fafc;
+      border: 1px solid rgba(148,163,184,.25);
+      box-shadow: none;
+    }
+
+    #setup-panel .hero-title{
+      color: #0f172a;
+      letter-spacing: .04em;
+    }
+
+    #setup-panel p{
+      color: #475569;
+    }
+
+    #setup-panel label{
+      color: #0f172a;
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+
+    #setup-panel input,
+    #setup-panel textarea{
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: #0f172a;
+      box-shadow: 0 6px 14px rgba(15,23,42,.06);
+    }
+
+    #setup-panel input:focus,
+    #setup-panel textarea:focus{
+      border-color: rgba(37, 99, 235, 0.4);
+      box-shadow: 0 8px 18px rgba(37,99,235,.15);
+    }
+
+    #setup-panel .btn-gold{
+      background: linear-gradient(135deg, #0f172a, #1f2937);
+      color: #ffffff;
+      text-transform: none;
+      letter-spacing: .02em;
+    }
+
+    #setup-panel [style*="border-top"]{
+      border-top-color: rgba(148,163,184,.35);
+    }
+
+    .certificate .cert-note{
+      margin-top: 10px;
+      font-size: 13px;
+      color: #111827;
+      text-align:center;
+      max-width: 85%;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .btn-share{
+      width:100%;
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid rgba(148,163,184,.35);
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+      letter-spacing: .02em;
+      cursor:pointer;
+      box-shadow: 0 10px 18px rgba(15,23,42,.08);
+    }
+
+    .share-toast{
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 12px;
+      letter-spacing: .02em;
+      box-shadow: 0 12px 20px rgba(15,23,42,.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+      z-index: 9999;
+    }
+
+    .share-toast.show{
+      opacity: 1;
+    }
+
+    .certificate{
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.3);
+      box-shadow: 0 16px 26px rgba(15,23,42,.12);
+    }
+
+    .cert-badge,
+    .cert-meta,
+    .cert-line,
+    .certificate div{
+      color: #475569;
+    }
+
+    .admin-edit{
+      position: static;
+      margin: 14px auto 0;
+      border-radius: 12px;
+      width: 46px;
+      height: 46px;
+      background: #ffffff;
+      border: 1px solid rgba(148,163,184,.3);
+      box-shadow: 0 12px 18px rgba(15,23,42,.12);
+      color: #475569;
+    }
+
+    .footer{
+      color: #94a3b8;
+      letter-spacing: .14em;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 420px){
+      .header-row{
+        flex-wrap: wrap;
+        justify-content:center;
+      }
+
+      .header-title{
+        order: 1;
+        width:100%;
+      }
+
+      .company-logo,
+      .header-actions{
+        order: 0;
+      }
+
+      .header-actions{
+        width:100%;
+        justify-content:center;
+      }
+
+      .dock-btn{
+        height: 78px;
+      }
+
+      .dock-primary{
+        transform: scale(1.08);
+      }
+
+      .secondary-actions{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ÜSTTEKİ ⭐ DEĞERLENDİR CHIP'İNİ KALDIR */
+    #flashState{
+      display:none !important;
+    }
+
+    /* CHIP GİDİNCE OLUŞAN BOŞLUĞU KAPAT */
+    .flash-head{
+      margin-bottom: 6px !important;
+      gap: 6px !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -609,8 +1262,19 @@
 
   <div class="container">
     <div class="header">
-      <div class="company-name" id="companyName">...</div>
-      <div class="company-slogan" id="companySlogan">...</div>
+      <div class="header-row">
+        <div class="company-logo" aria-hidden="true">
+          <i class="fas fa-screwdriver-wrench"></i>
+        </div>
+        <div class="header-title">
+          <div class="company-name" id="companyName">...</div>
+          <div class="company-slogan" id="companySlogan">...</div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn whatsapp" onclick="orderOnWhatsApp()"><i class="fab fa-whatsapp"></i> Bilgi Al</button>
+          <button class="header-btn phone" onclick="window.open(`tel:${normalizeTel(pageData.phone || pageData.whats || '')}`)"><i class="fas fa-phone"></i></button>
+        </div>
+      </div>
       <div class="catalog-tag">DİJİTAL KATALOG</div>
     </div>
 
@@ -619,7 +1283,6 @@
       Veriler Çekiliyor...
     </div>
 
-    <!-- ADMIN / SETUP -->
     <div id="setup-panel" class="panel">
       <div class="hero-card">
         <div class="hero-title">Yönetici Kurulumu</div>
@@ -705,7 +1368,6 @@
       <button class="btn-gold" onclick="saveData()">KAYDET</button>
     </div>
 
-    <!-- VIEW -->
     <div id="view-panel" class="panel">
       <div class="certificate">
         <div class="cert-top">
@@ -718,34 +1380,33 @@
           </div>
         </div>
         <div class="cert-line"></div>
-        <div style="margin-top:10px; font-size:12px; color: rgba(242,242,242,.55);">
+        <div class="cert-note">
           “Bu sayfa, işletmenin seçkilerini ve kampanyalarını tek dokunuşla sunar.”
         </div>
       </div>
 
       <div class="dock">
         <div class="dock-inner">
-          <!-- İLETİŞİM: artık kart/rehbere kaydet + ana ekrana ekle -->
-          <div class="dock-btn" onclick="openCardModal()" title="Kart / Rehbere Kaydet">
-            <i class="fas fa-address-card"></i>
+          <div class="dock-btn dock-primary" onclick="openCardModal()" title="Kart / Rehbere Kaydet">
+            <i class="fas fa-qrcode"></i>
           </div>
 
           <div class="dock-btn" onclick="openGallery('photo')" id="btnProducts" title="Ürünlerimiz">
-            <i class="fas fa-box-open"></i>
+            <i class="fas fa-cart-shopping"></i>
           </div>
 
           <div class="dock-btn" onclick="openGallery('video')" id="btnAds" title="Videolu Reklamlar">
-            <i class="fas fa-bullhorn"></i>
+            <i class="fas fa-store"></i>
           </div>
 
           <div class="dock-btn daily" onclick="openDaily()" id="btnDaily" title="Ürün tanıtımı">
-            <i class="fas fa-bolt"></i>
+            <i class="fas fa-star"></i>
           </div>
         </div>
 
         <div class="dock-labels">
           <span>Dijital Kart</span>
-          <span>Koleksiyon</span>
+          <span>Ürünlerimiz</span>
           <span>Vitrin</span>
           <span>Öne Çıkan</span>
         </div>
@@ -766,6 +1427,10 @@
           </div>
           <img id="flashImg" alt="" style="display:none;">
         </div>
+        <div class="product-text">
+          <div class="product-title">Premium Akıllı Paket</div>
+          <div class="product-desc">En yeni seri, modern tasarım ve sınırlı stok avantajı.</div>
+        </div>
 
         <div class="price-row">
           <div class="price-box">
@@ -779,7 +1444,24 @@
         </div>
 
         <div class="flash-actions">
-          <button class="btn-whatsapp" onclick="orderOnWhatsApp()">WhatsApp’tan Sipariş</button>
+          <button class="btn-whatsapp" onclick="orderOnWhatsApp()">WhatsApp’tan Bilgi Al</button>
+        </div>
+
+        <div class="secondary-actions">
+          <button class="secondary-btn" onclick="openCardModal()">
+            <span class="secondary-icon"><i class="fas fa-bookmark"></i></span>
+            <span class="secondary-text">
+              <strong>Kataloğu Kaydet</strong>
+              <small>Linki Paylaş • Masaüstüne Ekle</small>
+            </span>
+          </button>
+          <button class="secondary-btn review-secondary" onclick="pageData.review ? window.open(pageData.review, '_blank', 'noopener,noreferrer') : openCardModal()">
+            <span class="secondary-icon"><i class="fab fa-google"></i></span>
+            <span class="secondary-text">
+              <strong>Bizi Değerlendir</strong>
+              <small>Google Yorum</small>
+            </span>
+          </button>
         </div>
       </div>
 
@@ -788,7 +1470,6 @@
     </div>
   </div>
 
-  <!-- GALLERY OVERLAY -->
   <div id="gallery-overlay">
     <div class="gallery-header">
       <div class="close-gallery" onclick="closeGallery()"><i class="fas fa-chevron-left"></i> Geri</div>
@@ -797,7 +1478,6 @@
     <div class="slider-container" id="slider-track"></div>
   </div>
 
-  <!-- CARD MODAL -->
   <div id="cardModal">
     <div class="card-header">
       <div class="close-gallery" onclick="closeCardModal()"><i class="fas fa-chevron-left"></i> Kapat</div>
@@ -821,9 +1501,11 @@
         <div style="margin-top:12px;">
           <button class="btn-ghost" onclick="showA2HSHelp()">Ana Ekrana Ekle Yönergesi</button>
         </div>
+        <div style="margin-top:12px;">
+          <button class="btn-share" onclick="shareCatalog()">Paylaş</button>
+        </div>
 
         <div id="a2hsSteps" style="margin-top:12px; display:none;">
-          <!-- dynamic -->
         </div>
       </div>
 
@@ -844,33 +1526,11 @@
   </div>
 
   <script>
-    // ✅ API URL (same)
     const API_URL = "https://script.google.com/macros/s/AKfycbyvtvYWLmkq8AqmCEhf_FP5fYLaliFpz_p-Jx4_miEM1vgCvHIM8qDS06A5kKP9F6W0ZA/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
     const currentID = urlParams.get('id');
 
-    // Data model:
-    // title: company
-    // not: legal
-    // ses: daily single file link
-    // folder (packed):
-    // 0 pLink
-    // 1 vLink
-    // 2 adminHash
-    // 3 slogan
-    // 4 phone
-    // 5 whats
-    // 6 insta
-    // 7 address
-    // 8 maps
-    // 9 flashImg
-    // 10 flashOld
-    // 11 flashNew
-    // 12 flashLabel
-    // 13 email
-    // 14 review
-    // 15 hours
     let pageData = {
       company: "", slogan: "",
       phone: "", email: "", whats: "", insta: "", address: "", maps: "", review: "", hours: "",
@@ -910,7 +1570,6 @@
             return;
           }
 
-          // Legacy encrypted detection (old AES)
           const looksEncrypted = (v) => typeof v === 'string' && v.startsWith("U2FsdGVkX1");
           if (looksEncrypted(data.title) || looksEncrypted(data.not) || looksEncrypted(data.folder) || looksEncrypted(data.ses)) {
             document.getElementById('companyName').innerText = "Güncelleme Gerekli";
@@ -963,7 +1622,6 @@
         .catch(() => alert("Bağlantı Hatası: URL'yi kontrol et."));
     };
 
-    // ===== Flash render =====
     function getDriveId(link){
       const m = (link||"").match(/[-\w]{25,}/);
       return m ? m[0] : "";
@@ -1009,7 +1667,6 @@
       }
     }
 
-    // ===== Daily single file preview =====
     function openDaily(){
       if(!pageData.daily) return;
       const overlay = document.getElementById('gallery-overlay');
@@ -1027,7 +1684,6 @@
       }
     }
 
-    // ===== Gallery (same backend) =====
     function openGallery(type) {
       let link = "";
       let title = "";
@@ -1059,7 +1715,15 @@
             slide.className = 'slide';
             if(file.type === 'image') {
               const proxyUrl = "https://lh3.googleusercontent.com/d/" + file.id + "=s2000";
-              slide.innerHTML = `<img src="${proxyUrl}" loading="lazy">`;
+              const name = (file.name || "").trim();
+              slide.innerHTML = `
+                <div class="gallery-frame">
+                  ${name ? `<div class="gallery-title">${escapeHtml(name)}</div>` : ""}
+                  <div class="gallery-media">
+                    <img src="${proxyUrl}" loading="lazy">
+                  </div>
+                </div>
+              `;
             } else if (file.type === 'video') {
               const videoUrl = `https://drive.google.com/file/d/${file.id}/preview`;
               slide.innerHTML = `<div class="video-wrapper"><iframe src="${videoUrl}" allow="autoplay; fullscreen" allowfullscreen></iframe></div>`;
@@ -1074,7 +1738,6 @@
       document.getElementById('slider-track').innerHTML = "";
     }
 
-    // ===== WhatsApp Order =====
     function normalizeHandle(h){ return (h||"").trim().replace(/^@/,'').replace(/\s+/g,''); }
     function normalizeWhats(w){ return (w||"").replace(/[^\d]/g,'').replace(/^0/,'90'); }
     function normalizeTel(t){ return (t||"").replace(/\s+/g,''); }
@@ -1098,7 +1761,6 @@
       window.open(url, "_blank");
     }
 
-    // ===== Admin auth remember per device =====
     function isAdminRemembered(){
       try{ return localStorage.getItem(storageKey("admin_ok")) === "1"; }
       catch(e){ return false; }
@@ -1160,7 +1822,6 @@
 
       document.getElementById('inNot').value = pageData.legal || "";
 
-      // Şifreyi otomatik doldurma yok:
       document.getElementById('inPass').value = "";
       document.getElementById('inPassConfirm').value = "";
     }
@@ -1169,20 +1830,15 @@
       const company = (document.getElementById('inTitle').value || "").trim();
       if(!company) return alert("Şirket adı boş olamaz.");
 
-      // İlk kurulum mu? (adminHash yoksa ilk kurulum say)
       const firstSetup = !pageData.adminHash;
 
       const pass = (document.getElementById('inPass').value || "");
       const pass2 = (document.getElementById('inPassConfirm').value || "");
 
-      // ✅ İlk kurulumda şifre zorunlu
       if(firstSetup){
         if(!pass) return alert("İlk kurulumda yönetici şifresi boş olamaz.");
         if(pass !== pass2) return alert("Şifreler uyuşmuyor.");
       } else {
-        // ✅ Sonraki düzenlemelerde:
-        // - Şifre girilmediyse: adminHash aynen kalsın
-        // - Şifre girildiyse: değiştir (doğrula)
         if(pass){
           if(pass !== pass2) return alert("Şifreler uyuşmuyor.");
         }
@@ -1214,7 +1870,6 @@
 
       const legal   = (document.getElementById('inNot').value || "").trim();
 
-      // admin hash hesap
       let adminHash = pageData.adminHash || "";
       if(firstSetup || pass){
         adminHash = sha256hex(pass);
@@ -1256,9 +1911,6 @@
         });
     }
 
-    // =========================
-    // CARD / VCARD / A2HS FLOW
-    // =========================
     function openCardModal(){
       prepareCardModal();
       document.getElementById('cardModal').style.display = 'flex';
@@ -1290,7 +1942,6 @@
         a2hsText.innerHTML = "Tarayıcı menüsünden “Ana ekrana ekle / Kısayol oluştur” seçeneklerini kullanabilirsin.";
       }
 
-      // Quick links
       const box = document.getElementById('cardQuickLinks');
       const tel = document.getElementById('quickTel');
       const map = document.getElementById('quickMap');
@@ -1378,9 +2029,7 @@
       }
     }
 
-    // ===== vCard (VCF) generator =====
     function sanitizeVCardValue(s){
-      // vCard special chars: \n, ; , \
       return (s||"").replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/;/g,'\\;').replace(/,/g,'\\,');
     }
     function buildVCard(){
@@ -1396,26 +2045,19 @@
       const review  = pageData.review || "";
       const hours   = pageData.hours || "";
 
-      // vCard 3.0 is widely compatible
       lines.push("BEGIN:VCARD");
       lines.push("VERSION:3.0");
-      // FN / ORG
       lines.push(`FN:${sanitizeVCardValue(company)}`);
       lines.push(`ORG:${sanitizeVCardValue(company)}`);
 
-      // TEL
       if(phone) lines.push(`TEL;TYPE=CELL,VOICE:${sanitizeVCardValue(phone)}`);
 
-      // EMAIL
       if(email) lines.push(`EMAIL;TYPE=INTERNET:${sanitizeVCardValue(email)}`);
 
-      // ADR (simple text in label)
       if(address) lines.push(`ADR;TYPE=WORK:;;${sanitizeVCardValue(address)};;;;`);
 
-      // URL: katalog linki
       lines.push(`URL:${sanitizeVCardValue(window.location.href)}`);
 
-      // Extra links in NOTE (broad compatibility)
       const noteParts = [];
       if(slogan) noteParts.push(slogan);
       if(hours) noteParts.push(`Çalışma Saatleri: ${hours}`);
@@ -1423,11 +2065,9 @@
       if(insta) noteParts.push(`Instagram: https://instagram.com/${normalizeHandle(insta)}`);
       if(review) noteParts.push(`Yorumlar: ${review}`);
 
-      // WhatsApp (optional)
       const w = normalizeWhats(whats || phone);
       if(w) noteParts.push(`WhatsApp: https://wa.me/${w}`);
 
-      // ID
       noteParts.push(`Katalog ID: ${currentID}`);
 
       if(noteParts.length){
@@ -1439,24 +2079,18 @@
     }
 
     function saveToContacts(){
-      // Web güvenliği gereği “rehbere otomatik kaydet” yok.
-      // En hızlı yöntem: vCard (VCF) oluşturup açtırmak.
       const vcf = buildVCard();
       const filename = `${(pageData.company || "isletme").replace(/[^\w\d\-]+/g,'_')}_${currentID}.vcf`;
 
       try{
-        // Prefer Blob URL
         const blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
         const url = URL.createObjectURL(blob);
 
-        // iOS Safari: location.href ile açtırmak genelde “Kişilere Ekle” ekranını getirir
-        // Bazı cihazlarda download gibi görünür ama Kişiler importu çıkar.
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
 
-        // iOS'ta download attribute bazen yok sayılır, yine de açılır.
         a.click();
 
         setTimeout(() => {
@@ -1464,10 +2098,55 @@
           document.body.removeChild(a);
         }, 1500);
       } catch(e){
-        // Fallback: data uri
         const dataUri = "data:text/vcard;charset=utf-8," + encodeURIComponent(vcf);
         window.location.href = dataUri;
       }
+    }
+  </script>
+  <script>
+    function showShareToast(message){
+      let toast = document.getElementById('shareToast');
+      if(!toast){
+        toast = document.createElement('div');
+        toast.id = 'shareToast';
+        toast.className = 'share-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toast.hideTimer);
+      toast.hideTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function shareCatalog(){
+      const url = window.location.href;
+      const title = (document.getElementById('companyName')?.innerText || 'Dijital Katalog').trim();
+
+      if(navigator.share){
+        navigator.share({ title, url }).catch(() => {
+          showShareToast('Paylaşım iptal edildi.');
+        });
+        return;
+      }
+
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(() => {
+          showShareToast('Link panoya kopyalandı.');
+        }).catch(() => {
+          showShareToast('Link kopyalanamadı.');
+        });
+        return;
+      }
+
+      const temp = document.createElement('input');
+      temp.value = url;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showShareToast('Link panoya kopyalandı.');
     }
   </script>
 </body>
