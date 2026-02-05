@@ -1,0 +1,311 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dijital Katalog</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="company-logo" aria-hidden="true">
+          <i class="fas fa-screwdriver-wrench"></i>
+        </div>
+        <div class="header-title">
+          <div class="company-name" id="companyName">...</div>
+          <div class="company-slogan" id="companySlogan">...</div>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn whatsapp" onclick="orderOnWhatsApp()"><i class="fab fa-whatsapp"></i> Bilgi Al</button>
+          <button class="header-btn phone" onclick="window.open(`tel:${normalizeTel(pageData.phone || pageData.whats || '')}`)"><i class="fas fa-phone"></i></button>
+        </div>
+      </div>
+      <div class="catalog-tag">QR MİNİ WEB SİTE</div>
+    </div>
+
+    <div id="loading">
+      <i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>
+      Veriler Çekiliyor...
+    </div>
+
+    <div id="setup-panel" class="panel">
+      <div class="hero-card">
+        <div class="hero-title">Yönetici Kurulumu</div>
+        <p style="font-size:12px; color: rgba(242,242,242,.55); margin:10px 0 0;">
+          İzleyici şifresi yok. Düzenleme için yönetici şifresi gerekir. Şifreyi bir kere girince bu cihazda hatırlar.
+          <br><br>
+          Not: Daha sonra düzenlerken şifreyi değiştirmek istemezsen, şifre alanını boş bırakıp Kaydet diyebilirsin.
+        </p>
+      </div>
+
+      <label>1) ŞİRKET ADI</label>
+      <input type="text" id="inTitle" placeholder="Örn: X Mağazası">
+
+      <label>2) SLOGAN</label>
+      <input type="text" id="inSlogan" placeholder="Örn: Kaliteyi uygun fiyata sunarız.">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        3) İLETİŞİM BİLGİLERİ (ŞABLON)
+      </label>
+
+      <label>Telefon</label>
+      <input type="text" id="inPhone" placeholder="Örn: +90 5xx xxx xx xx">
+
+      <label>E-posta (Opsiyonel)</label>
+      <input type="text" id="inEmail" placeholder="Örn: info@site.com">
+
+      <label>WhatsApp Numarası (Opsiyonel — ülke kodu ile)</label>
+      <input type="text" id="inWhats" placeholder="Örn: 905xxxxxxxxx">
+
+      <label>Instagram (Opsiyonel)</label>
+      <input type="text" id="inInsta" placeholder="Örn: @hesap">
+
+      <label>Adres (Opsiyonel)</label>
+      <input type="text" id="inAddress" placeholder="Örn: Kadıköy, İstanbul">
+
+      <label>Konum Linki (Google Maps — Opsiyonel)</label>
+      <input type="text" id="inMaps" placeholder="Maps linki">
+
+      <label>Google Yorum Linki (Opsiyonel)</label>
+      <input type="text" id="inReview" placeholder="Google yorum linki">
+
+      <label>Çalışma Saatleri (Opsiyonel)</label>
+      <input type="text" id="inHours" placeholder="Örn: Hafta içi 09:00–19:00">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        4) MEDYA
+      </label>
+
+      <label>Ürünlerimiz (Resimler Klasör Linki)</label>
+      <input type="text" id="inPhotoLink" placeholder="Drive klasör linki">
+
+      <label>Vitrin (Videolar Klasör Linki)</label>
+      <input type="text" id="inVideoLink" placeholder="Drive klasör linki">
+
+      <label>Öne çıkan (Tek Drive Dosyası)</label>
+      <input type="text" id="inDaily" placeholder="Drive dosya linki">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        5) ANLIK KAMPANYA (YÖNETİCİDEN — KALICI)
+      </label>
+
+      <label>Kampanya Görseli (Tek Drive Görsel Linki)</label>
+      <input type="text" id="inFlashImg" placeholder="Drive görsel linki">
+
+      <label>Eski Fiyat</label>
+      <input type="text" id="inOldPrice" placeholder="Örn: 1.499₺">
+
+      <label>Yeni Fiyat</label>
+      <input type="text" id="inNewPrice" placeholder="Örn: 999₺">
+
+      <label>Kampanya Etiketi (Opsiyonel)</label>
+      <input type="text" id="inFlashLabel" placeholder="Örn: FLAŞ FIRSAT / HAFTANIN ÜRÜNÜ">
+
+      <label style="color: var(--gold); margin-top: 18px; border-top:1px dashed rgba(255,255,255,.18); padding-top:12px;">
+        6) YASAL / AÇIKLAMA METNİ
+      </label>
+      <textarea id="inNot" rows="4" placeholder="Örn: Tüm hakları saklıdır..."></textarea>
+
+      <label style="color: var(--gold); margin-top: 18px;">YÖNETİCİ ŞİFRESİ</label>
+      <input type="password" id="inPass" placeholder="Yönetici şifresi (ilk kurulumda zorunlu)">
+      <input type="password" id="inPassConfirm" placeholder="Şifre tekrar">
+
+      <button class="btn-gold" onclick="saveData()">KAYDET</button>
+    </div>
+
+    <div id="view-panel" class="panel">
+      <div class="certificate">
+        <div class="cert-top">
+          <div class="cert-badge">
+            <i class="fas fa-crown"></i>
+            QR BUSINESS PAGE KAYDI
+          </div>
+          <div class="cert-meta">
+            ID: <span id="certId">...</span>
+          </div>
+        </div>
+        <div class="cert-line"></div>
+
+        <!-- EDIT: V-Card (gri + beyaz, sadece isim + Digital V Card) -->
+        <div class="vcard-shell" onclick="openCardModal()">
+          <div class="vcard-body">
+            <div class="vcard-title" id="vcardName">...</div>
+            <div class="vcard-sub" id="vcardSub">Digital V Card</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT: ÜST BUTONLAR TAMAMEN KALKTI (dock gizlenecek) -->
+      <div class="dock" aria-hidden="true">
+        <div class="dock-inner">
+          <div class="dock-btn dock-primary dock-card" onclick="openCardModal()" title="Kart">
+            <i class="fas fa-qrcode"></i>
+          </div>
+          <div class="dock-btn" onclick="openGallery('photo')" id="btnProducts" title="Ürünlerimiz">
+            <i class="fas fa-cart-shopping"></i>
+          </div>
+          <div class="dock-btn" onclick="openGallery('video')" id="btnAds" title="Videolu Reklamlar">
+            <i class="fas fa-store"></i>
+          </div>
+        </div>
+        <div class="dock-labels">
+          <span class="dock-label-card">Dijital Kart</span>
+          <span>Ürünlerimiz</span>
+          <span>Vitrin</span>
+        </div>
+      </div>
+
+      <!-- EDIT: sadece başlık (buton yok) -->
+      <div class="section-head">
+        <div class="section-label">Bugünün Fırsatı</div>
+      </div>
+
+      <div class="flash glass" id="flashBox">
+        <div class="flash-head">
+          <div class="flash-title" id="flashTitle"><i class="fas fa-bolt"></i> FLAŞ FIRSAT</div>
+          <div class="flash-chip" id="flashState">Yayında</div>
+        </div>
+
+        <div class="flash-media" id="flashMedia">
+          <div class="placeholder" id="flashPlaceholder">
+            <i class="fas fa-tag"></i>
+            Kampanya yok
+          </div>
+          <img id="flashImg" alt="" style="display:none;">
+        </div>
+
+        <div class="price-row">
+          <div class="price-box">
+            <div class="price-label">Eski Fiyat</div>
+            <div class="price-val old" id="oldPriceText">—</div>
+          </div>
+          <div class="price-box">
+            <div class="price-label">Yeni Fiyat</div>
+            <div class="price-val" id="newPriceText">—</div>
+          </div>
+        </div>
+
+        <div class="flash-actions">
+          <button class="btn-whatsapp" onclick="orderOnWhatsApp()">WhatsApp’tan Bilgi Al</button>
+        </div>
+
+        <!-- Ürünlerimiz -->
+        <div class="grid-section" id="productsSection">
+          <div class="grid-title">Ürünlerimiz</div>
+          <div class="grid-list" id="productGrid"></div>
+        </div>
+
+        <!-- Vitrin (YouTube tarzı) -->
+        <div class="grid-section" id="vitrinSection">
+          <div class="grid-title">Vitrin</div>
+          <div class="grid-list vitrin-grid" id="vitrinGrid"></div>
+        </div>
+
+        <!-- EDIT: Öne Çıkanlar (vitrinden sonra, 2'li grid) -->
+        <div class="grid-section" id="featuredSection">
+          <div class="grid-title">Öne Çıkanlar</div>
+          <div class="grid-list featured-grid" id="featuredGrid"></div>
+        </div>
+
+        <!-- Google Yorum -->
+        <button class="review-btn" onclick="pageData.review ? window.open(pageData.review, '_blank', 'noopener,noreferrer') : openCardModal()">
+          <span class="review-stars">
+            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+          </span>
+          <span>Bizi Değerlendir – Google Yorum</span>
+        </button>
+
+        <!-- Kataloğu Kaydet (UI kalktı) -->
+        <div class="secondary-actions hide-save">
+          <button class="secondary-btn" onclick="openCardModal()">
+            <span class="secondary-icon"><i class="fas fa-bookmark"></i></span>
+            <span class="secondary-text">
+              <strong>Kataloğu Kaydet</strong>
+              <small>Linki Paylaş • Masaüstüne Ekle</small>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Yasal / Açıklama Metni -->
+<div id="legalText" class="legal-text" style="display:none;"></div>
+      
+      <div class="admin-edit" onclick="enableEdit()"><i class="fas fa-pen"></i></div>
+      <div class="footer">POWERED BY FTHLABZ</div>
+    </div>
+  </div>
+
+  <div id="gallery-overlay">
+    <div class="gallery-header">
+      <div class="close-gallery" onclick="closeGallery()"><i class="fas fa-chevron-left"></i> Geri</div>
+      <span id="galTitle">Albüm</span>
+    </div>
+    <div class="slider-container" id="slider-track"></div>
+  </div>
+
+  <div id="mediaModal">
+    <div class="media-modal-header">
+      <div class="close-gallery" onclick="closeMediaModal()"><i class="fas fa-chevron-left"></i> Kapat</div>
+      <span class="media-title" id="mediaModalTitle">Ürün</span>
+    </div>
+    <div class="media-modal-body" id="mediaModalBody"></div>
+  </div>
+
+  <div id="cardModal">
+    <div class="card-header">
+      <div class="close-gallery" onclick="closeCardModal()"><i class="fas fa-chevron-left"></i> Kapat</div>
+      <div class="card-title">KART / REHBER</div>
+    </div>
+    <div class="card-body">
+      <div class="card-box">
+        <div class="card-headline"><i class="fas fa-user-plus"></i> Rehbere Kaydet</div>
+        <div class="mini">
+          Tek tuşla işletme kartını oluşturur. Açılan ekranda “Kişilere Ekle / Yeni Kişi Oluştur” seçerek kaydedebilirsin.
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn-gold" style="margin-top:0;" onclick="saveToContacts()">Rehbere Kaydet</button>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-headline"><i class="fas fa-house"></i> Ana Ekrana Kısayol</div>
+        <div class="mini" id="a2hsText">Cihazına göre yönerge burada görünecek.</div>
+
+        <div style="margin-top:12px;">
+          <button class="btn-ghost" onclick="showA2HSHelp()">Ana Ekrana Ekle Yönergesi</button>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn-share" onclick="shareCatalog()">Paylaş</button>
+        </div>
+
+        <div id="a2hsSteps" style="margin-top:12px; display:none;"></div>
+      </div>
+
+      <div class="card-box" id="cardQuickLinks" style="display:none;">
+        <div class="card-headline"><i class="fas fa-link"></i> Hızlı Erişim</div>
+        <div class="mini">
+          Bazı cihazlarda aşağıdaki linkler doğrudan işini hızlandırır.
+        </div>
+        <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="hl" id="quickTel" href="#" style="display:none;">Telefonla Ara</a>
+          <a class="hl" id="quickMap" href="#" target="_blank" rel="noopener" style="display:none;">Konum</a>
+          <a class="hl" id="quickInsta" href="#" target="_blank" rel="noopener" style="display:none;">Instagram</a>
+          <a class="hl" id="quickReview" href="#" target="_blank" rel="noopener" style="display:none;">Yorumlar</a>
+          <a class="hl" id="quickWeb" href="#" target="_blank" rel="noopener" style="display:none;">Site/Katalog</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
