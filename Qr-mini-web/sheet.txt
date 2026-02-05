@@ -1,0 +1,7 @@
+sheet klasör yapısı en üst tarafa yaz
+
+
+id -	password -	title -	not -	ses -	folder
+
+
+//örneğin www.wap.onrender.com.tr/?id=1001 ve /?id=fthlabz//
