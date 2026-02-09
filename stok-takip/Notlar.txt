@@ -1,0 +1,6 @@
+json dosyasını resetleme
+
+{ "products": {} }
+
+
+index in içindeki Token ı 2 parça halinde değiştir kesinlikle.
