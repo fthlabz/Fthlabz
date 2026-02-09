@@ -4,3 +4,5 @@ json dosyasını resetleme
 
 
 index in içindeki Token ı 2 parça halinde değiştir kesinlikle.
+
+müşterinin Tokenı alırıen sınırsız yap ve sadece repo kutucuğu işaretle
