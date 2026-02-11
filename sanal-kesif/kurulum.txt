@@ -1,0 +1,6 @@
+classic token al 2 parça halinde yapıştır
+sınırsı al tokenı ve repo işaretle
+
+github kullanıcı adı ve depo adı değiştir 
+
+link sonuna kesinlikle /panel.html ekle önemli
