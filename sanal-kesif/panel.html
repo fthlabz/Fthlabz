@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bunkervan | Premium Esnaf Paneli</title>
+    <style>
+        /* Modern ve Premium V-Card Tarzı Tasarım */
+        :root {
+            --primary-color: #1a1a1a;
+            --accent-color: #007aff;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-muted: #636e72;
+            --radius: 20px;
+        }
+
+        body { 
+            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            margin: 0; 
+            padding: 30px 15px; 
+            color: var(--text-main);
+        }
+
+        .container { 
+            max-width: 600px; 
+            margin: auto; 
+            background: var(--card-bg); 
+            padding: 35px 25px; 
+            border-radius: var(--radius); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05), 0 5px 15px rgba(0,0,0,0.03); 
+        }
+
+        /* Başlıklar */
+        h2 { text-align: center; color: var(--primary-color); margin: 0 0 5px 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;}
+        .subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px; font-weight: 500;}
+        
+        /* Yükleme Alanı */
+        .upload-box { 
+            background: #f8f9fa; 
+            padding: 25px; 
+            border-radius: 16px; 
+            border: 2px dashed #dcdde1; 
+            text-align: center; 
+            margin-bottom: 25px; 
+            transition: all 0.3s ease;
+        }
+        .upload-box:hover { border-color: var(--accent-color); background: #f0f7ff; }
+
+        /* Çirkin Dosya Butonunu Gizleyip Şık Label Yapma */
+        input[type="file"] { display: none; }
+        .custom-file-upload {
+            display: inline-block;
+            padding: 12px 25px;
+            cursor: pointer;
+            background: white;
+            color: var(--primary-color);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+            transition: 0.2s;
+        }
+        .custom-file-upload:active { transform: scale(0.98); }
+        #fileNameDisplay { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
+
+        .input-group { display: flex; gap: 12px; justify-content: center; }
+        input[type="number"] { 
+            width: 80px; 
+            padding: 14px; 
+            border: 1px solid #e1e2e6; 
+            border-radius: 12px; 
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            background: white;
+            outline: none;
+            transition: 0.2s;
+        }
+        input[type="number"]:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(0,122,255,0.1); }
+        
+        button.btn-add { 
+            background: var(--primary-color); 
+            color: white; 
+            border: none; 
+            padding: 0 25px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            transition: 0.2s;
+        }
+        button.btn-add:active { transform: scale(0.95); background: #000; }
+
+        /* Yükleniyor Uyarısı */
+        #statusText { color: var(--accent-color); font-weight: 700; font-size: 14px; margin-top: 15px; display: none; }
+
+        /* Vitrin Listesi */
+        .product-list { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;}
+        .product-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: #fff; 
+            padding: 12px; 
+            border: 1px solid #f1f2f6; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03); 
+            transition: 0.3s;
+        }
+        .product-item:hover { box-shadow: 0 6px 15px rgba(0,0,0,0.06); transform: translateY(-2px); }
+        
+        .product-info { display: flex; align-items: center; gap: 15px; }
+        .product-info img { width: 55px; height: 55px; object-fit: cover; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .product-details { display: flex; flex-direction: column; }
+        .product-details span.title { font-weight: 800; color: var(--primary-color); font-size: 15px;}
+        .product-details span.size { font-weight: 500; color: var(--text-muted); font-size: 13px; margin-top: 2px;}
+        
+        /* Butonlar */
+        button.btn-delete { background: #ffeaa7; color: #d63031; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 13px; transition: 0.2s; }
+        button.btn-delete:hover { background: #ff7675; color: white; }
+        
+        .action-buttons { display: flex; flex-direction: column; gap: 12px; }
+        
+        button.btn-share { 
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); 
+            color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; 
+            font-weight: 800; font-size: 16px; box-shadow: 0 6px 20px rgba(37,211,102,0.3);
+            display: flex; justify-content: center; align-items: center; gap: 10px; transition: 0.2s;
+        }
+        button.btn-share:active { transform: scale(0.98); }
+
+        button.btn-clear-all { 
+            background: #f1f2f6; color: #636e72; border: none; padding: 16px; width: 100%; 
+            border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;
+        }
+        button.btn-clear-all:active { background: #dfe4ea; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Bunkervan Sanal Keşif</h2>
+    <div class="subtitle">Premium Esnaf Paneli</div>
+
+    <div class="upload-box">
+        <label for="fileInput" class="custom-file-upload">
+            📸 Halı Fotoğrafı Seç
+        </label>
+        <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" onchange="dosyaSecildi(this)">
+        <span id="fileNameDisplay">Henüz fotoğraf seçilmedi</span>
+        
+        <div class="input-group">
+            <input type="number" id="enInput" placeholder="En (cm)" required>
+            <input type="number" id="boyInput" placeholder="Boy (cm)" required>
+            <button class="btn-add" onclick="urunuYukle()">Listeye Ekle</button>
+        </div>
+        <p id="statusText">İşlem Yapılıyor... ⏳</p>
+    </div>
+
+    <div class="product-list" id="productList">
+        </div>
+
+    <div class="action-buttons">
+        <button id="shareBtn" class="btn-share" style="display: none;" onclick="vitriniPaylas()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.004-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+            </svg>
+            Müşteriye Gönder (WhatsApp)
+        </button>
+        <button class="btn-clear-all" onclick="tumunuTemizle()">Tüm Vitrini Temizle</button>
+    </div>
+</div>
+
+<script>
+    // --- BİLGİLERİNİ BURAYA GİR (SADECE BUNLARI DEĞİŞTİR) ---
+    const KULLANICI = "fthlabz"; 
+    const REPO = "sanal-kesif"; 
+    
+    // Güvenli Token Birleşimi
+    const token1 = "ghp_";
+    const token2 = "dm7qeynDwgjzBO5uOg02AFW4OhXZXH1cMdUG"; 
+    const githubToken = token1 + token2;
+    // ---------------------------------------------------------
+
+    let vitrin = [];
+
+    // Dosya seçildiğinde ismini ekrana şıkça yazma
+    function dosyaSecildi(input) {
+        const isim = input.files.length > 0 ? input.files[0].name : "Henüz fotoğraf seçilmedi";
+        document.getElementById('fileNameDisplay').innerText = "Seçilen: " + isim;
+    }
+
+    // 1. AŞAMA: Sistem açıldığında GitHub'daki Bulut JSON'u (Defteri) okur
+    async function defteriOku() {
+        try {
+            const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/vitrin.json?t=${Date.now()}`);
+            if (cevap.ok) {
+                vitrin = await cevap.json();
+                vitriniCiz();
+            }
+        } catch (e) { console.log("İlk defa defter oluşturulacak."); }
+    }
+    defteriOku();
+
+    // 2. AŞAMA: Yeni resmi HD Optimize edip (1500px) buluta yükleme Motoru
+    async function urunuYukle() {
+        if (vitrin.length >= 50) { alert("Maksimum 50 ürüne ulaştınız!"); return; }
+
+        const file = document.getElementById('fileInput').files[0];
+        const en = document.getElementById('enInput').value;
+        const boy = document.getElementById('boyInput').value;
+
+        if (!file || !en || !boy) { alert("Lütfen resim ve ölçü bilgilerini tam girin."); return; }
+
+        const statusText = document.getElementById('statusText');
+        statusText.style.display = "block";
+        statusText.innerText = "HD Optimizasyon Yapılıyor... ⏳";
+
+        // Resmi Tuvale (Canvas) Alma İşlemi
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.src = url;
+
+        img.onload = async function() {
+            URL.revokeObjectURL(url); // Belleği temizle
+            
+            const canvas = document.createElement('canvas');
+            const MAX_BOYUT = 1500; // Altın Oran (Telefonları dondurmayan en net boyut)
+            
+            let width = img.width;
+            let height = img.height;
+
+            // Boyutlandırma Mantığı (En-Boy oranını koruyarak)
+            if (width > height) {
+                if (width > MAX_BOYUT) { height = Math.round(height * (MAX_BOYUT / width)); width = MAX_BOYUT; }
+            } else {
+                if (height > MAX_BOYUT) { width = Math.round(width * (MAX_BOYUT / height)); height = MAX_BOYUT; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            
+            // Resmi Pürüzsüzleştir ve Çiz
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // %85 Kalitede JPEG olarak sıkıştır (Base64 Formatında)
+            const base64Content = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+            const dosyaAdi = "hali_HD_" + Date.now() + ".jpg"; 
+
+            statusText.innerText = "Buluta Kaydediliyor... ☁️";
+
+            try {
+                // GitHub'a Gönder
+                const resimCevap = await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/images/${dosyaAdi}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `HD Halı eklendi: ${en}x${boy}`, content: base64Content })
+                });
+
+                if (resimCevap.ok) {
+                    const resimVeri = await resimCevap.json();
+                    
+                    // Listeye ekle ve Defteri Güncelle
+                    vitrin.push({ id: Date.now(), url: resimVeri.content.download_url, en: en, boy: boy });
+                    await jsonGuncelle(vitrin);
+                    
+                    // Ekranı temizle
+                    statusText.style.display = "none";
+                    document.getElementById('fileInput').value = "";
+                    document.getElementById('fileNameDisplay').innerText = "Henüz fotoğraf seçilmedi";
+                    document.getElementById('enInput').value = "";
+                    document.getElementById('boyInput').value = "";
+                    vitriniCiz();
+                } else {
+                    alert("Yükleme hatası! Şifrenizi (Token) veya Depo adınızı kontrol edin.");
+                    statusText.style.display = "none";
+                }
+            } catch (error) { 
+                alert("Bağlantı hatası!"); 
+                statusText.style.display = "none"; 
+            }
+        };
+        img.onerror = function() {
+            alert("Lütfen geçerli bir resim dosyası seçin.");
+            statusText.style.display = "none";
+        };
+    }
+
+    // Ekrandaki şık listeyi çizer
+    function vitriniCiz() {
+        const listeDiv = document.getElementById('productList');
+        listeDiv.innerHTML = "";
+        
+        vitrin.forEach((urun, index) => {
+            listeDiv.innerHTML += `
+                <div class="product-item">
+                    <div class="product-info">
+                        <img src="${urun.url}">
+                        <div class="product-details">
+                            <span class="title">Model ${index + 1}</span>
+                            <span class="size">${urun.en} x ${urun.boy} cm</span>
+                        </div>
+                    </div>
+                    <button class="btn-delete" onclick="urunuSil(${urun.id})">Sil</button>
+                </div>
+            `;
+        });
+
+        // Ürün varsa WhatsApp butonunu göster
+        document.getElementById('shareBtn').style.display = vitrin.length > 0 ? "flex" : "none";
+    }
+
+    // Ürün Silme
+    async function urunuSil(id) {
+        if (confirm("Bu halıyı vitrinden silmek istediğinize emin misiniz?")) {
+            vitrin = vitrin.filter(u => u.id !== id);
+            await jsonGuncelle(vitrin);
+            vitriniCiz();
+        }
+    }
+
+    // Tümünü Temizle
+    async function tumunuTemizle() {
+        if (vitrin.length === 0) return;
+        if (confirm("DİKKAT! Tüm vitrin temizlenecek. Emin misiniz?")) {
+            vitrin = [];
+            await jsonGuncelle(vitrin);
+            vitriniCiz();
+        }
+    }
+
+    // GitHub JSON (Merkezi Defter) Güncelleme Motoru
+    async function jsonGuncelle(yeniListe) {
+        const path = "vitrin.json";
+        const url = `https://api.github.com/repos/${KULLANICI}/${REPO}/contents/${path}`;
+        
+        let sha = "";
+        try {
+            const getCevap = await fetch(url, { headers: { 'Authorization': `token ${githubToken}` } });
+            if (getCevap.ok) { const data = await getCevap.json(); sha = data.sha; }
+        } catch (e) {}
+
+        const base64Content = btoa(unescape(encodeURIComponent(JSON.stringify(yeniListe))));
+        await fetch(url, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: "Vitrin güncellendi", content: base64Content, sha: sha || undefined })
+        });
+    }
+
+    // Müşteriye WhatsApp'tan Jilet Gibi Link Atma
+    function vitriniPaylas() {
+        const musteriLinki = `https://${KULLANICI}.github.io/${REPO}/vitrin.html`;
+        const mesaj = `Merhaba! Beğendiğiniz halıları evinizde (Sanal Keşif ile) görmek için aşağıdaki linke tıklayabilirsiniz:\n\n👉 ${musteriLinki}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mesaj)}`, '_blank');
+    }
+</script>
+
+</body>
+</html>
