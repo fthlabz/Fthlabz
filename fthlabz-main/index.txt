@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTHLABZ | Digital Solutions</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --dark: #111827;
+            --light: #ffffff;
+            --gray: #f3f4f6;
+            --primary: #2563eb;
+            --gold: #d4af37; /* Premium Gold Rengi */
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            background-color: #fafafa;
+            color: var(--dark); 
+            font-family: 'Manrope', sans-serif; 
+            margin: 0; 
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            padding-bottom: 140px; /* Alt bar için boşluk */
+        }
+
+        /* --- ARKA PLAN EFEKTLERİ (Lava Lamp) --- */
+        .background-shapes {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .shape {
+            position: absolute;
+            filter: blur(90px);
+            opacity: 0.5;
+            animation: float 10s infinite alternate;
+        }
+        .shape-1 {
+            top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: rgba(37, 99, 235, 0.15); /* Mavi */
+        }
+        .shape-2 {
+            bottom: 10%; right: -10%; width: 40vw; height: 40vw;
+            background: rgba(245, 158, 11, 0.1); /* Turuncu */
+            animation-delay: -5s;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(30px, 50px); }
+        }
+
+        /* --- HEADER (GOLD & SHIMMER) --- */
+        nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 45px 5% 20px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 2.4rem;
+            font-weight: 800;
+            text-decoration: none;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            
+            /* Gold Işık Animasyonu */
+            background: linear-gradient(to right, var(--dark) 20%, #fff 50%, var(--gold) 80%);
+            background-size: 200% auto;
+            color: #000;
+            background-clip: text;
+            text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            
+            animation: shine 4s linear infinite;
+        }
+        
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .nav-slogan {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6b7280;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            padding: 30px 5%;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        .hero p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* --- GRID & CARD --- */
+        .container { 
+            max-width: 1400px; 
+            padding: 20px 5%; 
+            margin: 0 auto;
+        }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); 
+            gap: 30px; 
+        }
+
+        .card { 
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,1);
+            border-radius: 24px; 
+            padding: 35px; 
+            text-decoration: none; 
+            color: var(--dark); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+            background: #fff;
+        }
+
+        .icon-box {
+            width: 70px; height: 70px;
+            border-radius: 22px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 32px;
+            margin-bottom: 25px;
+            transition: 0.3s;
+        }
+
+        .card h3 { 
+            font-size: 1.4rem; 
+            margin: 0 0 15px 0; 
+            font-weight: 800; 
+        }
+
+        .card p { 
+            color: #6b7280; 
+            font-size: 0.95rem; 
+            line-height: 1.5; 
+            margin: 0; 
+            flex-grow: 1; 
+        }
+        
+        /* --- YENİ PREMIUM GLASS BUTON --- */
+        .card-btn-glass {
+            margin-top: 30px;
+            padding: 14px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: all 0.3s ease;
+            
+            /* Glass Variables (JS'den geliyor) */
+            color: var(--theme-color);
+            background: var(--theme-bg);
+            border: 1px solid transparent;
+        }
+
+        .card:hover .card-btn-glass {
+            border-color: var(--theme-color);
+            transform: translateY(-2px);
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        
+        .card-btn-glass i { 
+            font-size: 1.2rem; 
+            transition: 0.3s; 
+        }
+        
+        .card:hover .card-btn-glass i { 
+            transform: translateX(5px); 
+        }
+
+        /* --- FLOATING CONTACT BAR --- */
+        .floating-contact {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 14px 35px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border: 1px solid rgba(255,255,255,0.1);
+            width: max-content;
+            animation: slideUp 0.8s ease-out 1s backwards;
+            white-space: nowrap;
+        }
+
+        .contact-item {
+            display: flex; align-items: center; gap: 10px;
+            color: #fff; text-decoration: none;
+            font-size: 0.95rem; font-weight: 600;
+            transition: 0.3s;
+        }
+        .contact-item:hover { color: var(--primary); transform: scale(1.05); }
+        .divider { width: 1px; height: 24px; background: rgba(255,255,255,0.2); }
+
+        /* Mobil Düzenlemeler */
+        @media (max-width: 768px) {
+            .logo { font-size: 2rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .floating-contact { 
+                bottom: 20px; width: auto; max-width: 92%;
+                justify-content: center; padding: 12px 20px; gap: 15px; 
+            }
+            .contact-item span { font-size: 0.85rem; }
+            .contact-item i { font-size: 1.1rem; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translate(-50%, 50px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <nav>
+        <a href="#" class="logo">FTHLABZ SYSTEM</a>
+        <div class="nav-slogan">Future Tech Hub</div>
+    </nav>
+
+    <section class="hero">
+        <h1>Dijital Çözümler<br>Karargahı.</h1>
+        <p>İşletme maliyetlerini düşüren, operasyonel süreçleri hızlandıran ve verimliliği artıran yeni nesil yazılım teknolojileri.</p>
+    </section>
+
+    <div class="container">
+        <div id="program-listesi" class="grid"></div>
+    </div>
+
+    <div class="floating-contact">
+        <a href="https://wa.me/905373583095" target="_blank" class="contact-item">
+            <i class="ri-whatsapp-fill" style="color: #25D366; font-size: 1.4rem;"></i>
+            <span>0537 358 30 95</span>
+        </a>
+        <div class="divider"></div>
+        <a href="mailto:fthlabz@hotmail.com" class="contact-item">
+            <i class="ri-mail-fill" style="color: #f59e0b; font-size: 1.4rem;"></i>
+            <span>fthlabz@hotmail.com</span>
+        </a>
+    </div>
+
+    <script>
+        // OTOMATİK RENK LİSTESİ
+        const colors = [
+            { bg: "#eff6ff", text: "#2563eb" }, // Mavi
+            { bg: "#f0fdf4", text: "#16a34a" }, // Yeşil
+            { bg: "#fff7ed", text: "#ea580c" }, // Turuncu
+            { bg: "#e0e7ff", text: "#1e1b4b" }, // Koyu Lacivert
+            { bg: "#fef2f2", text: "#dc2626" }, // Kırmızı
+            { bg: "#ecfeff", text: "#0891b2" }  // Turkuaz
+        ];
+
+        // PROJELERİNİ BURAYA EKLİYORSUN
+        const projects = [
+            { 
+                isim: "Sanal Keşif AR", 
+                link: "https://fthlabz.github.io/sanal-kesif/index.html", 
+                aciklama: "Müşterinin evine ürün ışınlayan artırılmış gerçeklik vitrini.", 
+                icon: "ri-eye-fill" 
+            },
+            { 
+                isim: "Mobil stok takip/Satış", 
+                link: "https://fthlabz.github.io/stok-takip/", 
+                aciklama: "El terminalsiz, cep telefonuyla saniyeler içinde stok sayımı.", 
+                icon: "ri-archive-fill" 
+            },
+            { 
+                isim: "Akıllı Ürün Kimliği", 
+                link: "https://fthlabz.github.io/Otomatik-id-qr/", 
+                aciklama: "Her ürüne özel QR kimlik ile teknik veri ve stok takibi.", 
+                icon: "ri-qr-code-fill" 
+            },
+            { 
+                isim: "Dijital Kartvizit", 
+                link: "https://fthlabz.github.io/V-cardv1/?id=Fatih-SARI", 
+                aciklama: "Sınırsız güncellenebilir, temassız yeni nesil kartvizit.", 
+                icon: "ri-bank-card-fill" 
+            },
+            { 
+                isim: "4K Upscaler & Emoji Qr", 
+                link: "https://fthlabz.github.io/Kod/", 
+                aciklama: "Bulanık ürün fotoğraflarını 4K kaliteye çıkarın ve kendinize özel emoji qr çıkarın.", 
+                icon: "ri-magic-fill" 
+            },
+            { 
+                isim: "Sanal Tablo", 
+                link: "https://fthlabz.github.io/sanal-tablo/index.html", 
+                aciklama: "Tablolarınızı devasa boyut veya gerçek boyutta duvarınızda anında görme imkanına sahip olun.", 
+                icon: "ri-table-fill" 
+            },
+            { 
+                isim: "FTHLABZ Vizyon", 
+                link: "https://fthlabz.github.io/fthlabz-reklam/index.html", 
+                aciklama: "Operasyonel maliyetleri düşüren kurumsal stratejilerimiz.", 
+                icon: "ri-building-fill" 
+            }
+        ];
+
+        const list = document.getElementById('program-listesi');
+        
+        projects.forEach((p, i) => {
+            // Rengi sırayla otomatik seç
+            const theme = colors[i % colors.length];
+            const delay = i * 100;
+
+            list.innerHTML += `
+                <a href="${p.link}" class="card" style="--theme-bg: ${theme.bg}; --theme-color: ${theme.text}; animation: fadeIn 0.6s ease-out ${delay}ms backwards;">
+                    <div class="icon-box" style="background: ${theme.bg}; color: ${theme.text};">
+                        <i class="${p.icon}"></i>
+                    </div>
+                    <h3 style="color: #111;">${p.isim}</h3>
+                    <p>${p.aciklama}</p>
+                    
+                    <div class="card-btn-glass">
+                        İncele <i class="ri-arrow-right-line"></i>
+                    </div>
+                </a>`;
+        });
+
+        // Açılış Animasyonu
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
