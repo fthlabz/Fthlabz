@@ -3,4 +3,7 @@ sınırsı al tokenı ve repo işaretle
 
 github kullanıcı adı ve depo adı değiştir 
 
-link sonuna kesinlikle /panel.html ekle önemli
+esnaf paneline link sonuna kesinlikle /panel.html ekle önemli
+
+müşteri vitrinine /index.html ekle
+
