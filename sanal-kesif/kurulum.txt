@@ -1,4 +1,4 @@
-classic token al 2 parça halinde yapıştır
+classic token al cripto.js şifrele ve pin bekirle örn:1453
 sınırsı al tokenı ve repo işaretle
 
 github kullanıcı adı ve depo adı değiştir 
