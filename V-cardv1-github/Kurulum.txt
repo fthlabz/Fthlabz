@@ -1,5 +1,0 @@
-Token al 2 parça şeklinde yapıştır kullanıcının 
-Token ı sınırsız al ve repo lutucuğunu işaretle sadece 
-
-Github kullanıcı adı ve repo (depo) kısmını müşterinin reposuyla aynı yap 
-linkin sonunda /?id=kullanıcı-adı kesinlikle olacak 
