@@ -1,9 +1,0 @@
-classic token al cripto.js şifrele ve pin bekirle örn:1453
-sınırsı al tokenı ve repo işaretle
-
-github kullanıcı adı ve depo adı değiştir 
-
-esnaf paneline link sonuna kesinlikle /panel.html ekle önemli
-
-müşteri vitrinine /index.html ekle
-
