@@ -1,5 +1,0 @@
-müşteriye git hub depo aç yazılımı aynen kopyala yapıştır aynı dosya isimleri ile 
-google driver aç buraya klasörleri aç bağlantı paylaş herkes klasör linklerini kullanıcı panelie yapıştır
-google sheet aç id - vb en üste yaz uzantılardan app script aç hazır kodu yapıştır deploy paylaş herkese açık önemli ve api url yi kopyala programdaki app.js dosyasının en üstteki api yi değiştir 
-rendere git static de ve depoyu seç public sadece . koy root da çalışıyor deploy et yayınla 
-linki aldıkran sonra kesinlikle sonuna /?id=kullanici_adi örneğin /?id=fthlabz
