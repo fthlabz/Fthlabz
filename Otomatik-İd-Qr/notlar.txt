@@ -1,3 +1,0 @@
-const BASE_URL = "https://fthlabz.github.io/fthlabz-reklam/?id=";
-
-Yukarıdaki linki müşterinin resmş sitesi veya instagram vb adresi yap
